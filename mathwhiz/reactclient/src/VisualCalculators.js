@@ -24,12 +24,12 @@ export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoad
     }
 }
 
-export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep,yStep,integral_dx, setLoading, setVideoUrl, videoUrl) {
+export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep,yStep,integral_dx,integral_from,integral_to, setLoading, setVideoUrl, videoUrl) {
     try {
         setLoading(true);
         const response = await axios.post(
             "https://localhost:7160/api/get-function-integral",
-            { latex_function, xMin, xMax, yMin, yMax, xStep,yStep,integral_dx},
+            { latex_function, xMin, xMax, yMin, yMax, xStep,yStep,integral_dx,integral_from,integral_to},
             { responseType: "blob" }
         );
 

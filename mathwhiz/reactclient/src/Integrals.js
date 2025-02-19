@@ -8,17 +8,6 @@ import { submitFunctionIntegral } from "./VisualCalculators";
 
 addStyles();
 
-const NavigationBar = () => {
-    return (
-        <nav className="navbar">
-            <Link to="/" className="nav-link"> Home</Link>
-            <Link to="/calculus" className="nav-link" state={{ skipIntro: true }}>
-                    Back to Calculus
-                </Link>
-            <Link to="/previous-section" className="nav-link">Previous Section</Link>
-        </nav>
-    );
-};
 
 const ToggleMedia = ({ imageSrc, videoSrc }) => {
     const [showVideo, setShowVideo] = useState(false);
@@ -49,18 +38,20 @@ const ToggleMedia = ({ imageSrc, videoSrc }) => {
 };
 
 export default function Integrals() {
-    const [input, setInput] = useState("f(x)=-x^2");
+    const [input, setInput] = useState("f(x)=-x^2+1");
     const [videoUrl, setVideoUrl] = useState(null);
     const [loading, setLoading] = useState(false);
     const [latexContent, setLatexContent] = useState("");
 
-    const [xMin, setXMin] = useState("0");
+    const [xMin, setXMin] = useState("-3");
     const [xMax, setXMax] = useState("3");
-    const [yMin, setYMin] = useState("0");
+    const [yMin, setYMin] = useState("-3");
     const [yMax, setYMax] = useState("3");
     const [xStep, setXStep] = useState("1");
     const [yStep, setYStep] = useState("1");
-    const [dx, setDX] = useState("0.1");
+    const [dx, setDX] = useState("0.05");
+    const [igFrom, setIgFrom] = useState("-1");
+    const [igTo, setIgTo] = useState("1");  
 
     const [sliderOpen, setSliderOpen] = useState(false);
     const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -119,7 +110,7 @@ export default function Integrals() {
                
             </nav>
 
-            <NavigationBar />
+        
             <div className="limits-content">
 
                 <div className={`slider ${sliderOpen ? "open" : ""}`}>
@@ -136,16 +127,16 @@ export default function Integrals() {
 
                         <h3>Function Parameters</h3>
                         <div className="range-inputs">
-                            <label>X Axis Min:</label>
+                            <label>X Axis From:</label>
                             <input type="number" value={xMin} onChange={(e) => setXMin(e.target.value)} />
 
-                            <label>X Axis Max:</label>
+                            <label>X Axis To:</label>
                             <input type="number" value={xMax} onChange={(e) => setXMax(e.target.value)} />
 
-                            <label>Y Axis Min:</label>
+                            <label>Y Axis From:</label>
                             <input type="number" value={yMin} onChange={(e) => setYMin(e.target.value)} />
 
-                            <label>Y Axis Max:</label>
+                            <label>Y Axis To:</label>
                             <input type="number" value={yMax} onChange={(e) => setYMax(e.target.value)} />
 
                             <label>X Step Size:</label>
@@ -154,12 +145,18 @@ export default function Integrals() {
                             <label>Y Step Size:</label>
                             <input type="number" value={yStep} onChange={(e) => setYStep(e.target.value)} />
 
-                            <label>integral dx</label>
+                            <label>Integral dx</label>
                             <input type="number" value={dx} onChange={(e) => setDX(e.target.value)} />
+
+                            <label>Integral From</label>
+                            <input type="number" value={igFrom} onChange={(e) => setIgFrom(e.target.value)} />
+
+                            <label>Integral To</label>
+                            <input type="number" value={igTo} onChange={(e) => setIgTo(e.target.value)} />
                         </div>
 
                         <button
-                            onClick={() => submitFunctionIntegral(input, xMin, xMax, yMin, yMax, xStep,yStep,dx, setLoading, setVideoUrl, videoUrl)}
+                            onClick={() => submitFunctionIntegral(input, xMin, xMax, yMin, yMax, xStep,yStep,dx,igFrom,igTo, setLoading, setVideoUrl, videoUrl)}
                             disabled={loading}
                         >
                             {loading ? "Processing..." : "Generate"}

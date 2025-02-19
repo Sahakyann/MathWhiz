@@ -8,17 +8,6 @@ import { submitFunctionLimit } from "./VisualCalculators";
 
 addStyles();
 
-const NavigationBar = () => {
-    return (
-        <nav className="navbar">
-            <Link to="/" className="nav-link"> Home</Link>
-            <Link to="/calculus" className="nav-link" state={{ skipIntro: true }}>
-                    Back to Calculus
-                </Link>
-            <Link to="/previous-section" className="nav-link">Previous Section</Link>
-        </nav>
-    );
-};
 
 const ToggleMedia = ({ imageSrc, videoSrc }) => {
     const [showVideo, setShowVideo] = useState(false);
@@ -117,7 +106,7 @@ export default function Limits() {
                
             </nav>
 
-            <NavigationBar />
+            
             <div className="limits-content">
 
                 <div className={`slider ${sliderOpen ? "open" : ""}`}>

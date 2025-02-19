@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MathQuill, { addStyles as addMathQuillStyles } from 'react-mathquill';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
 import Login from './LoginForm';
 import Calculus from "./Calculus";
 import LinearAlgebra from './LinearAlgebra';
@@ -19,7 +19,8 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState('');
   const [userId, setUserId] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     console.log("Is Logged In:", isLoggedIn);
     const savedUsername = localStorage.getItem('username');
@@ -57,6 +58,8 @@ export default function App() {
               <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
                 MathWhiz
               </Link>
+              
+              <button className="nav-link" onClick={() => navigate(-1)}>Previous Section</button>
             </h2>
           </div>
           <div className="navbar-right">
