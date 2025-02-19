@@ -39,8 +39,4 @@ obj/
 /public
 python_script_testing
 
-/manim_animations/media/Tex/
-/manim_animations/Calculus/media/
-/manim_animations/media/
-
-/mathwhiz/aspnetserver/aspnetserver.csproj
+/manim_animations/media/Tex
