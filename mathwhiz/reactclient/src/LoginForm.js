@@ -1,33 +1,39 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = "https://localhost:7160/api/login";
-    const userToCheck = {
-      display_name: username,
-      password: password
-    };
+    setError("");
+
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userToCheck)
-      });
-      const data = await response.json();
-      if (data.success) {
-        onLogin(data.username, data.userID);
-      } else {
-        setError(data.message || 'Authentication failed');
-      }
+        const response = await fetch("https://localhost:7160/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include", 
+            body: JSON.stringify({ display_name: username, password }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            console.log("Login Successful");
+            onLogin(data.username, data.userID);
+            navigate("/")
+        } else {
+            setError(data.message || "Authentication failed");
+        }
     } catch (err) {
-      setError('Network error');
+        setError("Network error");
     }
-  };
+};
+
+ 
 
   return (
     <div className="login-container">
@@ -52,7 +58,10 @@ const Login = ({ onLogin }) => {
               Password:
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </label>
-            <button type="submit">Login</button>
+            <Link to="/register">
+            <button type="button">Sign Up</button>
+            </Link>
+             <button type="submit">Login</button> 
             {error && <p className="error-message">{error}</p>}
           </form>
         </div>
@@ -62,3 +71,19 @@ const Login = ({ onLogin }) => {
 }
 
 export default Login;
+
+const fetchProtectedData = async () => {
+  try {
+      const response = await fetch("https://localhost:7160/api/protected", {
+          method: "GET",
+          credentials: "include",
+      });
+
+      if (!response.ok) throw new Error("Unauthorized");
+
+      const data = await response.json();
+      console.log("Protected Data:", data);
+  } catch (error) {
+      console.error("Error fetching protected data:", error);
+  }
+};

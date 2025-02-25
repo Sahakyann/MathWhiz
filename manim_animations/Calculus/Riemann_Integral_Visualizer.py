@@ -1,5 +1,5 @@
 from manim import *
-from sympy import *
+import sympy as sp
 import re
 
 
@@ -12,14 +12,19 @@ class GetRiemannRectangles(Scene):
 
         l = parameters.split(',')
         print(l)
-        if len(l) < 8:
-            print(f"Error: Expected 8 parameters but got {len(l)}. Content: {l}")
+        if len(l) < 10:
+            print(f"Error: Expected 10 parameters but got {len(l)}. Content: {l}")
             return
 
         sympy_function = l[0]
-        xMin, xMax, yMin, yMax, xStep,yStep,integral_dx = l[1:8]
+        latex_function = l[10]
+        xMin, xMax, yMin, yMax, xStep,yStep,integral_dx,integral_from,integral_to = l[1:10]
+        print(f"Function Received from the server: {sympy_function}")
 
-        """print(f"Raw input function: {latex_function}")
+        """
+        Functionality moved to the server side
+        
+        print(f"Raw input function: {latex_function}")
 
         latex_function = re.sub(r"f\s*\(x\)\s*=", "", latex_function)  
         latex_function = re.sub(r"f\\left\(x\\right\)\s*=", "", latex_function)
@@ -57,20 +62,20 @@ class GetRiemannRectangles(Scene):
             return
         """
         try:
-            xMin, xMax, yMin, yMax, xStep,yStep,integral_dx = float(xMin), float(xMax), float(yMin), float(yMax), float(xStep),float(yStep),float(integral_dx)
+            xMin, xMax, yMin, yMax, xStep,yStep,integral_dx,integral_from,integral_to = float(xMin), float(xMax), float(yMin), float(yMax), float(xStep),float(yStep),float(integral_dx),float(integral_from),float(integral_to)
         except ValueError:
             print("Error: One or more parameters could not be converted to float.")
             return
 
-        x = symbols('x')
-        symbolic_expr = sympify(sympy_function, evaluate=False)
-        func = lambdify(x, symbolic_expr, modules=["numpy"])
+        x = sp.symbols('x')
+        symbolic_expr = sp.sympify(sympy_function, evaluate=False)
+        func = sp.lambdify(x, symbolic_expr, modules=["numpy"])
         axes = Axes(
             x_range=[xMin, xMax, xStep], 
             y_range=[yMin, yMax, yStep],
             x_length=8,
             y_length=6,
-            axis_config={"include_tip": True}
+            axis_config={"include_tip": True,'tip_shape': StealthTip}
         ).add_coordinates()
 
         graph = axes.plot(func, x_range=(xMin, xMax, xStep), color=YELLOW)
@@ -79,15 +84,15 @@ class GetRiemannRectangles(Scene):
         x_label = axes.get_x_axis_label("x")
 
         Axes_lab = (
-            MathTex(r"f(x)=" + str(func))
-            .next_to([xMax, yMax, 0], UR-0.5)
+            MathTex(latex_function)   
+            .to_edge(UL)
             .set_color(BLUE)
             .scale(0.6)
         )
 
         axes_labels = VGroup(x_label, y_label)
 
-        riemann_rectangles = axes.get_riemann_rectangles(graph, x_range=[xMin, xMax], dx=integral_dx)
+        riemann_rectangles = axes.get_riemann_rectangles(graph, x_range=[integral_from,integral_to], dx=integral_dx)
 
         self.add(axes)
         self.play(Create(axes), Create(graph))

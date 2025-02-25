@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using NCalc;
 
-namespace matwhiz.Data
+namespace mathwhiz.Data
 {
     public class MathFunction
     {
@@ -26,7 +26,7 @@ namespace matwhiz.Data
            
             latexFunction = Regex.Replace(latexFunction, @"f\s*\(x\)\s*=", "");
             latexFunction = Regex.Replace(latexFunction, @"f\\left\(x\\right\)\s*=", "");
-            
+            latexFunction = Regex.Replace(latexFunction, @"\\cdot", " * ");
             latexFunction = Regex.Replace(latexFunction, @"\\frac\{([^{}]+)\}\{([^{}]+)\}", "($1/$2)");
             var latexToSymPy = new (string, string)[]
             {
@@ -45,6 +45,15 @@ namespace matwhiz.Data
             {
                 latexFunction = Regex.Replace(latexFunction, latex, sympyFunc);
             }
+
+
+            latexFunction = Regex.Replace(latexFunction, @"(?<!\w)e\^({[^}]+}|\w+)", "exp($1)");
+            latexFunction = Regex.Replace(latexFunction, @"(?<=exp\([^)]*\))(?=\w)", " * ");
+         
+            latexFunction = Regex.Replace(latexFunction, @"(?<=\))(?=[a-zA-Z])", " * ");
+
+       
+            latexFunction = Regex.Replace(latexFunction, @"(?<=[0-9a-zA-Z])(?=\s*(sin|cos|tan|exp|sqrt|log|ln|pi)\s*\()", " * ");
 
             latexFunction = latexFunction.Replace(@"\left", "").Replace(@"\right", "");
             latexFunction = latexFunction.Replace("{", "(").Replace("}", ")");

@@ -5,13 +5,14 @@ import axios from "axios";
 import "katex/dist/katex.min.css";
 import { addStyles, EditableMathField } from "react-mathquill";
 import { submitFunctionLimit } from "./VisualCalculators";
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 
 addStyles();
 
 
 const ToggleMedia = ({ imageSrc, videoSrc }) => {
     const [showVideo, setShowVideo] = useState(false);
-
+    
     return (
         <div className="toggle-container">
             <button
@@ -48,6 +49,7 @@ export default function Limits() {
     const [yMin, setYMin] = useState("-10");
     const [yMax, setYMax] = useState("10");
     const [xStep, setXStep] = useState("0.1");
+    const navigate = useNavigate();
 
     const [sliderOpen, setSliderOpen] = useState(false);
     const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -62,7 +64,7 @@ export default function Limits() {
             }
             lastScrollY = window.scrollY;
         };
-    
+
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
@@ -91,8 +93,8 @@ export default function Limits() {
 
     return (
         <div className="limits-wrapper">
-           <nav className={`sidebar ${sidebarVisible ? "visible" : "hidden"}`}>
-                <h3>Limits</h3>
+            <nav className={`sidebar ${sidebarVisible ? "visible" : "hidden"}`}>
+                <h3>Table of Contents</h3>
                 <ul>
                     <li>
                         <a href="">Limits Introduction</a>
@@ -103,12 +105,16 @@ export default function Limits() {
                         </ul>
                     </li>
                 </ul>
-               
+
             </nav>
 
-            
-            <div className="limits-content">
 
+            <div className="limits-content">
+            <div className="button-container">
+                <button className="transparent-button" onClick={() => navigate('/')}>
+                    Back to Calculus
+                </button>
+            </div>
                 <div className={`slider ${sliderOpen ? "open" : ""}`}>
                     <button className="slider-toggle" onClick={() => setSliderOpen(!sliderOpen)}>
                         {sliderOpen ? "▶ Hide" : "◀ Show"}

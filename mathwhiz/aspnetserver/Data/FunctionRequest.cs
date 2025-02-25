@@ -1,4 +1,4 @@
-﻿using matwhiz.Data;
+﻿using mathwhiz.Data;
 using System.Text.Json.Serialization;
 
 namespace mathwhiz.Data

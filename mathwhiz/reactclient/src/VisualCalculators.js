@@ -47,3 +47,5 @@ export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, y
         setLoading(false);
     }
 }
+
+
