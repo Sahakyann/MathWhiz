@@ -21,7 +21,7 @@ namespace mathwhiz.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("aspnetserver.Data.User", b =>
+            modelBuilder.Entity("mathwhiz.Data.User", b =>
                 {
                     b.Property<int>("userID")
                         .ValueGeneratedOnAdd()
@@ -38,6 +38,11 @@ namespace mathwhiz.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("profile_picture")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("userID");
 

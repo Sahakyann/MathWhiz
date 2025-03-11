@@ -1,6 +1,10 @@
 from manim import *
 import sys
+from manim import config
 
+json_file_path = config.get("json_file")
+if json_file_path:
+    print(f"Using JSON file: {json_file_path}")
 
 class CreateCircle(Scene):
     def construct(self):

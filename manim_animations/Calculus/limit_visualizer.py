@@ -1,27 +1,28 @@
 from manim import *
-from sympy import *
+import sympy as sp
 import re
 
 
 
 class limitVisualizer(Scene):
      def construct(self):
-        input_file = "G:\\Capstone\\manim_animations\\Calculus\\media\\images\\limit_visualizer\\temp.txt"
+        input_file = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\limit_visualizer\\1080p60\\temp.txt"
         
         with open(input_file, 'r') as f:
             parameters = f.read().strip()
-        
+
         l = parameters.split(',')
+        print(l)
         if len(l) < 5:
-            print(f"Error: Expected 6 parameters but got {len(l)}. Content: {l}")
+            print(f"Error: Expected 5 parameters but got {len(l)}. Content: {l}")
             return
 
-        latex_function = l[0]
+        sympy_function = l[0]
+        latex_function = l[5]
         xMin, xMax, yMin, yMax = l[1:5]
+        print(f"Function Received from the server: {sympy_function}")
 
-        print(f"Raw input function: {latex_function}")
-
-        latex_function = re.sub(r"f\s*\(x\)\s*=", "", latex_function)  
+        '''latex_function = re.sub(r"f\s*\(x\)\s*=", "", latex_function)  
         latex_function = re.sub(r"f\\left\(x\\right\)\s*=", "", latex_function)
 
         latex_function = re.sub(r"\\frac\{([^{}]+)\}\{([^{}]+)\}", r"(\1/\2)", latex_function)
@@ -52,23 +53,27 @@ class limitVisualizer(Scene):
             func = lambdify(x, symbolic_expr, modules=["math"])
         except Exception as e:
             print(f"Error parsing LaTeX function: {e}")
-            return
+            return'''
 
         try:
-            xMin, xMax, yMin, yMax = float(xMin), float(xMax), float(yMin), float(yMax), float(xStep)
+            xMin, xMax, yMin, yMax = float(xMin), float(xMax), float(yMin), float(yMax)
         except ValueError:
             print("Error: One or more parameters could not be converted to float.")
             return
 
-        grid = Axes(
-            x_range=[xMin, xMax, 5], 
-            y_range=[yMin, yMax, 5],
+        x = sp.symbols('x')
+        symbolic_expr = sp.sympify(sympy_function, evaluate=False)
+        func = sp.lambdify(x, symbolic_expr, modules=["numpy"])
+
+        axes = Axes(
+            x_range=[xMin, xMax, 1], 
+            y_range=[yMin, yMax, 1],
             x_length=8,
             y_length=6,
-            axis_config={"include_tip": True}
+            axis_config={"include_tip": True,'tip_shape': StealthTip}
         ).add_coordinates()
         
-        graph = grid.plot(func, x_range=(xMin, xMax), color=YELLOW)
+        graph = axes.plot(func, x_range=(xMin, xMax), color=YELLOW, use_smoothing=False)
 
 
         Axes_lab = (
@@ -89,7 +94,7 @@ class limitVisualizer(Scene):
         )
 
         label_tracker_y = always_redraw(
-            lambda: MathTex(fr"f(x) = {graph.underlying_function(c.get_value()):.5f}")
+            lambda: MathTex(fr"f(x) = {graph.underlying_function(c.get_value()):.2f}")
             .next_to(label_tracker_x, DOWN)
             .set_color(BLUE)
             .scale(0.6)
@@ -97,22 +102,18 @@ class limitVisualizer(Scene):
 
         value_dot = always_redraw(
             lambda: Dot()
-            .move_to(grid.c2p(c.get_value(), graph.underlying_function(c.get_value())))
+            .move_to(axes.c2p(c.get_value(), graph.underlying_function(c.get_value())))
             .set_color(RED)
         )
 
-        self.add(grid)
-        self.play(DrawBorderThenFill(grid))
+        self.add(axes)
+        self.play(DrawBorderThenFill(axes))
         self.play(Create(graph))
         self.play(Create(Axes_lab))
 
         self.add(label_tracker_x, label_tracker_y, value_dot)
         self.play(c.animate.set_value(xMax), run_time=6, rate_func=linear)
         self.wait()
-
-if __name__ == "__main__":
-    config.media_dir = "G:\\Capstone\\manim_animations\\Calculus\\media\\images\\limit_visualizer"
-    #scene.render()
 
 
 

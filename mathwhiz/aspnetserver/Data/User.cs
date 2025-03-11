@@ -14,5 +14,8 @@ namespace mathwhiz.Data
         [Required]
         [MaxLength(30)]
         public required string password { get; set; }
+
+        [MaxLength(255)]
+        public string profile_picture { get; set; }
     }
 }

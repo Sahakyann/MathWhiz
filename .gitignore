@@ -43,6 +43,9 @@ python_script_testing
 /manim_animations/Calculus/media/
 /manim_animations/media/
 
+/manim_animations/LinearAlgebra/media/
+/manim_animations/LinearAlgebra/__pycache__
+
 /mathwhiz/aspnetserver/aspnetserver.csproj
 
 /generator.txt

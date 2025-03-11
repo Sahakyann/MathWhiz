@@ -1,17 +1,17 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace mathwhiz.Data
+namespace aspnetserver.Data.Structures
 {
     public class FunctionIntegralRequest : FunctionRequest
     {
-        public float xStep;
-        public float yStep;
-        public float integral_dx;
-        public float integral_from;
-        public float integral_to;
+        public float xStep { get; set; }
+        public float yStep { get; set; }
+        public float integral_dx { get; set; }
+        public float integral_from { get; set; }
+        public float integral_to { get; set; }
 
-        
-        public FunctionIntegralRequest(string latex_function, float xMin, float xMax, float yMin, float yMax, float xStep,float yStep,float integral_dx,float integral_from,float integral_to) : base(latex_function, xMin, xMax, yMin, yMax)
+
+        public FunctionIntegralRequest(string latex_function, float xMin, float xMax, float yMin, float yMax, float xStep, float yStep, float integral_dx, float integral_from, float integral_to) : base(latex_function, xMin, xMax, yMin, yMax)
         {
             this.xStep = xStep;
             this.yStep = yStep;

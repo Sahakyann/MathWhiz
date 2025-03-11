@@ -1,0 +1,13 @@
+{
+  "xStep": 1,
+  "yStep": 1,
+  "integral_dx": 0.05,
+  "integral_from": -1,
+  "integral_to": 1,
+  "latex_function": "-x^2\u002B5",
+  "sympyMathFunction": "-x^2\u002B5",
+  "xMin": -2,
+  "xMax": 2,
+  "yMin": -2,
+  "yMax": 2
+}

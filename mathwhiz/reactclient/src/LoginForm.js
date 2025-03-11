@@ -24,6 +24,7 @@ const Login = ({ onLogin }) => {
         if (data.success) {
             console.log("Login Successful");
             onLogin(data.username, data.userID);
+            console.log("User ID: " + data.userID)
             navigate("/")
         } else {
             setError(data.message || "Authentication failed");

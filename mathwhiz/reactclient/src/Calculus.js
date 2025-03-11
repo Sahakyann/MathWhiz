@@ -43,7 +43,7 @@ const CalculusHome = () => {
             </div>
           </Link>
 
-          <Link to="/linearalgebra" className="lesson">
+          <Link to="/calculus/squeezing" className="lesson">
             <img src="/calculus.jpg" alt="Squeezing_theorem" />
             <div className="lesson-content">
               <h3>The squeezing theorem</h3>

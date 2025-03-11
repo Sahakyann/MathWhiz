@@ -83,5 +83,27 @@ namespace mathwhiz.Data {
                 }
             }
         }
+        internal static async Task<bool> UpdateUserProfilePictureAsync(int userId,string filePath)
+        {
+            using (var db = new AppDBContext())
+            {
+                try
+                {
+                    User userToUpdate = await GetUserByIdAsync(userId);
+                    if (userToUpdate == null)
+                    {
+                        return false; // User does not exist
+                    }
+                    userToUpdate.profile_picture = filePath;
+                    db.Users.Update(userToUpdate);
+                    return await db.SaveChangesAsync() >= 1;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+        
     }
 }

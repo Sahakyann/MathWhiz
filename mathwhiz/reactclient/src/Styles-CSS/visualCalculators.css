@@ -1,0 +1,159 @@
+.visualization-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    padding: 120px;
+}
+
+
+.sidebar-visualizer {
+    font-family: 'Inter';
+    width: 30%;
+    min-width: 300px; 
+    background: #1e1e1e;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 10; 
+}
+
+.sidebar-visualizer h3,
+.sidebar-visualizer h2 {
+    font-family: 'Inter';
+    margin-bottom: 15px;
+}
+
+.sidebar-visualizer select{
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+.sidebar-visualizer input {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+
+
+button:disabled {
+    background: gray;
+}
+
+button:hover:not(:disabled) {
+    background: #0056b3;
+}
+
+
+.visualizer {
+    flex-grow: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    position: relative;
+    overflow: hidden;
+}
+
+.visualizer video {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain; 
+}
+
+.placeholder-text {
+    font-family: 'Inter';
+    color: white;
+    font-size: 20px;
+    text-align: center;
+}
+
+.matrix-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.matrix-container div {
+    display: flex;
+    gap: 10px;
+}
+
+.matrix-container input {
+    width: 50px;
+    text-align: center;
+}
+
+.vector-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+
+}
+
+.vector-container label {
+    font-weight: bold;
+}
+
+.vector-container input {
+    width: 50px;
+    text-align: center;
+}
+
+.integral-function-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; 
+    margin-top: 5px;
+}
+
+.integral-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.integral-symbol {
+    width: 75px;
+    height: auto;
+}
+
+.integral-upper{
+    width: 60px !important;
+    text-align: center;
+    font-size: 10px;
+    -moz-appearance: textfield;
+}
+.integral-lower {
+    width: 60px !important;
+    text-align: center;
+    font-size: 10px;
+    -moz-appearance: textfield;
+}
+
+.integral-upper::-webkit-outer-spin-button,
+.integral-upper::-webkit-inner-spin-button,
+.integral-lower::-webkit-outer-spin-button,
+.integral-lower::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.function-input {
+    display: flex;
+    align-items: center;
+    min-width: 80px;
+}
+
+.math-input {
+    min-width: 80px;
+    font-size: 16px;
+}
+

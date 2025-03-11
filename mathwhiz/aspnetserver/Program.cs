@@ -1,4 +1,4 @@
-using Swashbuckle.AspNetCore.SwaggerUI;
+﻿using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using aspnetserver.Data.Structures;
+using aspnetserver.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -99,57 +101,30 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
-async Task<(string output, string error)> RunPythonScript(
-    FunctionRequest functionRequest, string scriptPath,
-    string fileName, string pythonScriptName, string outputDirectory, string? pythonClassName = null)
-{
-    var outputFile = Path.Combine(outputDirectory, fileName);
-    string arguments = $"/c cd /d {scriptPath} && manim -o {fileName} {pythonScriptName}";
 
-    ProcessStartInfo psi = new ProcessStartInfo
-    {
-        FileName = "cmd.exe",
-        Arguments = arguments,
-        RedirectStandardOutput = true,
-        RedirectStandardError = true,
-        UseShellExecute = false,
-        CreateNoWindow = true
-    };
-
-    try
-    {
-        using (Process process = new Process { StartInfo = psi })
-        {
-            process.Start();
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
-
-            return (output, error);
-        }
-    }
-    catch (Exception ex)
-    {
-        return ($"", $"Error running script: {ex.Message}");
-    }
-}
 
 app.MapPost("/api/get-function-integral", async (FunctionIntegralRequest request) =>
 {
-    string scriptPath = "G:\\Capstone\\manim_animations\\Calculus";
     string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Riemann_Integral_Visualizer\\1080p60"; 
-    string outputFile = Path.Combine(outputDirectory, "GetRiemannRectangles.mp4"); 
     string tempInputFile = Path.Combine(outputDirectory, "temp.txt");
     string pythonScriptName = "Riemann_Integral_Visualizer.py";
-    string fileName = "GetRiemannRectangles";
+    ManimRequest.RequestType type = ManimRequest.RequestType.Integral;
+
     try
     {
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4");
+        if (cachedFile != null)
+        {
+            return cachedFile; 
+        }
         await File.WriteAllTextAsync(tempInputFile, request.ToString());
+        await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
         Console.WriteLine(request.ToString());
-        var (output, error) = await RunPythonScript(request,scriptPath, fileName,pythonScriptName, "GetRiemannRectangles.mp4", outputDirectory);
+        var (output, error,outputFileName) = await PythonScripts.RunPythonScript(request, FunctionRequest.scriptPath, pythonScriptName, type,"mp4",outputDirectory);
+        string outputFile = Path.Combine(outputDirectory, outputFileName);
 
-   
         Console.WriteLine("Output:\n" + output);
         if (!string.IsNullOrEmpty(error))
         {
@@ -163,7 +138,7 @@ app.MapPost("/api/get-function-integral", async (FunctionIntegralRequest request
 
 
         var fileBytes = await File.ReadAllBytesAsync(outputFile);
-        return Results.File(fileBytes, "video/mp4", "GetRiemannRectangles.mp4");
+        return Results.File(fileBytes, "video/mp4", outputFileName);
     }
     catch (Exception ex)
     {
@@ -171,50 +146,93 @@ app.MapPost("/api/get-function-integral", async (FunctionIntegralRequest request
     }
 });
 
-app.MapPost("/api/get-function-limit", async (FunctionRequest request) =>
+app.MapPost("/api/get-linear-transformation", async (LinearAlgebraRequest request) =>
 {
+    
+    string outputDirectory = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\Vector_transformations\\1080p60";
 
-var scriptPath = "G:\\Capstone\\manim_animations\\Calculus\\limit_visualizer.py";
-        var outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\images\\limit_visualizer";
-        var outputFile = Path.Combine(outputDirectory, "limitVisualizer_ManimCE_v0.19.0.png");
-        var tempInputFile = Path.Combine(outputDirectory, "temp.txt");
+    string pythonScriptName = "Vector_transformations.py";
+    string tempInputFile = Path.Combine(outputDirectory, "temp.txt");
+    ManimRequest.RequestType type = ManimRequest.RequestType.LinearTransformation;
 
-        try
+    try
+    {
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4");
+        if (cachedFile != null)
         {
-            await File.WriteAllTextAsync(tempInputFile, request.ToString());
-            Console.WriteLine(request.ToString());
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "cmd.exe",
-                    //Arguments = $"/c cd /d G:\\Capstone\\manim_animations\\Calculus && manim limit_visualizer.py limitVisualizer --media_dir G:\\Capstone\\manim_animations\\Calculus\\media",
-                    Arguments = $"/c cd /d G:\\Capstone\\manim_animations\\Calculus && manim -s limit_visualizer.py limitVisualizer --media_dir G:\\Capstone\\manim_animations\\Calculus\\media",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            process.Start();
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            process.WaitForExit();
-
-            if (process.ExitCode != 0 || !File.Exists(outputFile))
-            {
-                return Results.BadRequest(new { Success = false, Message = $"Error generating image: {error}" });
-            }
-
-            var fileBytes = await File.ReadAllBytesAsync(outputFile);
-            return Results.File(fileBytes, "image/png", "limitVisualizer_ManimCE_v0.19.0.png");
+            return cachedFile;
         }
-        catch (Exception ex)
+        await File.WriteAllTextAsync(tempInputFile, request.ToString());
+        await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
+        Console.WriteLine(request.ToString());
+
+        var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
+            request, LinearAlgebraRequest.scriptPath, pythonScriptName, type, "mp4", outputDirectory
+        );
+
+        string outputFile = Path.Combine(outputDirectory, outputFileName);
+        Console.WriteLine("Output:\n" + output);
+
+        if (!string.IsNullOrEmpty(error))
         {
-            return Results.BadRequest(new { Success = false, Message = ex.Message });
+            Console.WriteLine("Errors:\n" + error);
         }
+
+        if (!File.Exists(outputFile))
+        {
+            return Results.BadRequest(new { Success = false, Message = $"Error generating video: {error}" });
+        }
+
+        var fileBytes = await File.ReadAllBytesAsync(outputFile);
+        return Results.File(fileBytes, "video/mp4", outputFileName);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Success = false, Message = ex.Message });
+    }
 });
+
+/*app.MapPost("/api/get-function-limit", async (FunctionRequest request) =>
+{
+    string scriptPath = "G:\\Capstone\\manim_animations\\Calculus";
+    string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\images\\limit_visualizer";
+    string pythonScriptName = "limit_visualizer.py";
+    FunctionRequest.FunctionType type = FunctionRequest.FunctionType.Limit;
+    string tempInputFile = Path.Combine(outputDirectory, "temp.txt");
+
+    //string functionHash = FunctionHashStore.GetOrCreateFunctionHash(request.latex_function);
+    //string tempInputFile = Path.Combine(outputDirectory, $"temp_{functionHash}.txt");
+    //string outputFile = Path.Combine(outputDirectory, $"limitVisualizer_{functionHash}.png");
+
+    try
+    {
+
+        await File.WriteAllTextAsync(tempInputFile, request.ToString());
+        Console.WriteLine(request.ToString());
+
+        var (output, error, outputFileName) = await PythonScripts.RunPythonScript(request, scriptPath, pythonScriptName, type, ".png", outputDirectory);
+        string outputFile = Path.Combine(outputDirectory, outputFileName);
+
+        Console.WriteLine("Output:\n" + output);
+        if (!string.IsNullOrEmpty(error))
+        {
+            Console.WriteLine("Errors:\n" + error);
+        }
+
+        if (!File.Exists(outputFile))
+        {
+            return Results.BadRequest(new { Success = false, Message = $"Error generating image: {error}" });
+        }
+
+        var fileBytes = await File.ReadAllBytesAsync(outputFile);
+        return Results.File(fileBytes, "video/mp4", outputFileName);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Success = false, Message = ex.Message });
+    }
+});*/
+
 
 app.MapPost("/api/login", async (HttpContext context, User userToCheck) =>
 {
@@ -266,13 +284,13 @@ app.MapPost("/api/login", async (HttpContext context, User userToCheck) =>
         //var jwtCookie = context.Request.Cookies["jwt"];
         //Console.WriteLine($"Set token: {jwtCookie}");
 
-        return Results.Ok(new { Success = true, username = user.display_name, userID = user.userID });
+        return Results.Ok(new { Success = true, username = user.display_name, user.userID });
     }
     else
     {
-        return Results.Ok(new { Success = false, Message = "Invalid credentials" });
+        return Results.Ok(new { Success = false, Message = "Invalid credentials or the user does not exist" });
     }
-}); //}).RequireAuthorization();
+});
 
 
 app.MapGet("/api/protected", (HttpContext context) =>
@@ -342,14 +360,16 @@ app.MapGet("/api/validate-token", async (HttpContext context) =>
         }
 
         var usernameClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "username");
-        if (usernameClaim == null)
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "userId");
+        if (usernameClaim == null || userIdClaim == null)
         {
-            Console.WriteLine("No valid username claim found.");
+            Console.WriteLine("No valid username or userID claim found.");
             return Results.Unauthorized();
         }
         var username = usernameClaim.Value;
+        var userID = userIdClaim.Value; 
 
-        return Results.Ok(new { isValid = true, username });
+        return Results.Ok(new { isValid = true, username, userID });
     }
     catch (Exception ex)
     {
@@ -374,6 +394,62 @@ app.MapPost("/api/register", async (User userToCheck) => {
     {
         return Results.Ok(new { Success = false, Message = "User already exists" });
     }
+});
+
+app.MapPost("/api/upload-profile-picture/{userId}", async (HttpContext context, int userId) =>
+{
+
+    Console.WriteLine($"Received profile picture upload request from userId: {userId}");
+
+    var file = context.Request.Form.Files.FirstOrDefault();
+    if (file == null)
+    {
+        return Results.BadRequest(new { Success = false, Message = "No file uploaded" });
+    }
+
+    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+    Directory.CreateDirectory(uploadsFolder);
+
+    var uniqueFileName = $"{userId}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+    using (var stream = new FileStream(filePath, FileMode.Create))
+    {
+        await file.CopyToAsync(stream);
+    }
+    
+    var savedPath = $"/uploads/{uniqueFileName}";
+
+    bool success = await UsersRepository.UpdateUserProfilePictureAsync(userId, savedPath);
+    Console.WriteLine($"Success: {success}, File at: {savedPath}");
+    if (success)
+    {
+        return Results.Ok(new { Success = true, FilePath = savedPath });
+    }
+    else
+    {
+        return Results.Ok(new { Success = false, Message = "Failed to update profile picture" });
+    }
+});
+
+app.MapGet("/api/get-profile-picture/{userId}", async (HttpContext context, int userId) =>
+{
+    Console.WriteLine($"Received profile picture get request from userId: {userId}");
+    User user = await UsersRepository.GetUserByIdAsync(userId);
+
+    if (user == null || string.IsNullOrEmpty(user.profile_picture))
+    {
+        return Results.BadRequest(new { Success = false, Message = "User does not exist or has no profile picture uploaded!" });
+    }
+
+    string filePath = Path.Combine("wwwroot", user.profile_picture.TrimStart('/'));
+    if (!System.IO.File.Exists(filePath))
+    {
+        return Results.NotFound(new { Success = false, Message = "Profile picture file not found!" });
+    }
+
+    return Results.Ok(new { Success = true, FilePath = user.profile_picture });
+
 });
 
 app.Run();
