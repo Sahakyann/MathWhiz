@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function Calculus({ }) {
-
+export default function Probability() {
   return (
-    <div className="calculus-page">
-      <CalculusHome />
+    <div className="probability-page">
+      <ProbabilityHome />
     </div>
   );
 }
 
-const CalculusHome = () => {
+const ProbabilityHome = () => {
   const [isDetailView, setIsDetailView] = useState(true);
 
   const toggleView = () => {
@@ -19,159 +18,134 @@ const CalculusHome = () => {
   };
   const navigate = useNavigate();
 
-
   return (
-    <div className="calculus-page">
+    <div className="probability-page">
       <div className="button-container">
-        <button className="transparent-button" onClick={() => navigate('/')}>
-          Back to Home
-        </button>
-        <button className="transparent-button" onClick={toggleView}>
-          {isDetailView ? "Card View" : "Detail View"}
-        </button>
+        <button className="transparent-button" onClick={() => navigate("/")}>Back to Home</button>
+        <button className="transparent-button" onClick={toggleView}>{isDetailView ? "Card View" : "Detail View"}</button>
       </div>
       {isDetailView ? (
-
         <div className="detail-view">
-
-          <Link to="/calculus" className="lesson">
-            <img src="/calculus.jpg" alt="Limits" />
+          <Link to="/probability/intro" className="lesson">
+            <img src="/probability.jpg" alt="Probability Basics" />
             <div className="lesson-content">
-              <h3>Limits Introduction and Visualization</h3>
-              <p>Brief introduction to the concept of limits and a visual tool to understand them</p>
-              <span>Feb 22, 2025</span>
+              <h3>Introduction to Probability</h3>
+              <p>Understanding probability, dependence, independence, and conditional probability.</p>
             </div>
           </Link>
 
-          <Link to="/linearalgebra" className="lesson">
-            <img src="/calculus.jpg" alt="Squeezing_theorem" />
+          <Link to="/probability/random-variables" className="lesson">
+            <img src="/random_variables.jpg" alt="Random Variables" />
             <div className="lesson-content">
-              <h3>The squeezing theorem</h3>
-              <p>Understanding the squeezing theorem.</p>
-              <span>Feb 22, 2025</span>
+              <h3>Random Variables</h3>
+              <p>Definition and properties of discrete and continuous random variables.</p>
             </div>
           </Link>
 
-          <Link to="/probability" className="lesson">
-            <img src="/calculus.jpg" alt="Lhopitals_rule" />
+          <Link to="/probability/bayes" className="lesson">
+            <img src="/bayes.jpg" alt="Bayes Formula" />
             <div className="lesson-content">
-              <h3>L'Hôpital's rule</h3>
-              <p>This rule seems like magic, but it has an intuitive background</p>
-              <span>Feb 22, 2025</span>
+              <h3>Bayes' Formula</h3>
+              <p>Understanding conditional probability and its application using Bayes' theorem.</p>
             </div>
           </Link>
 
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+          <Link to="/probability/distributions" className="lesson">
+            <img src="/distributions.jpg" alt="Distributions" />
             <div className="lesson-content">
-              <h3>Derivative of a function and Tangent lines</h3>
-              <p>Rate of change of a function, and how is it related to tangent lines</p>
-              <span>Feb 22, 2025</span>
+              <h3>Probability Distributions</h3>
+              <p>Exploring different probability distributions and their uses.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/probability/cdf-pdf-pmf" className="lesson">
+            <img src="/cdf.jpg" alt="CDF, PDF, PMF" />
             <div className="lesson-content">
-              <h3>Differentiation rules</h3>
-              <p>How to differntiate functions withiout finding the limit every time</p>
-              <span>Feb 22, 2025</span>
+              <h3>CDF, PDF, and PMF</h3>
+              <p>Understanding cumulative distribution functions, probability density, and mass functions.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/probability/expectation-variance" className="lesson">
+            <img src="/expectation.jpg" alt="Expectation and Variance" />
             <div className="lesson-content">
-              <h3>The Chain Rule</h3>
-              <p>How to differentiate a function within a function with visuals</p>
-              <span>Feb 22, 2025</span>
+              <h3>Expectation and Variance</h3>
+              <p>How to compute and interpret expectation and variance of a random variable.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/probability/covariance-correlation" className="lesson">
+            <img src="/covariance.jpg" alt="Covariance and Correlation" />
             <div className="lesson-content">
-              <h3>Higher Order derivatives</h3>
-              <p>The first derviative is rate of change of the function, but what if we differentiate again?</p>
-              <span>Feb 22, 2025</span>
+              <h3>Covariance and Correlation</h3>
+              <p>Understanding relationships between two random variables.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/probability/law-of-large-numbers" className="lesson">
+            <img src="/wlln.jpg" alt="Law of Large Numbers" />
             <div className="lesson-content">
-              <h3>Integration and The Fundamental Theorem of Calculus</h3>
-              <p>If we have derivatives, we also will need the reverse operation</p>
-              <span>Feb 22, 2025</span>
+              <h3>Law of Large Numbers</h3>
+              <p>Exploring the weak and strong laws of large numbers.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/probability/clt" className="lesson">
+            <img src="/clt.jpg" alt="Central Limit Theorem" />
             <div className="lesson-content">
-              <h3>Definite integrals and The area under the curve</h3>
-              <p>Integrals is the antiderivative, how is it related to the area under the curve?</p>
-              <span>Feb 22, 2025</span>
+              <h3>Central Limit Theorem</h3>
+              <p>Why the normal distribution appears everywhere and its significance.</p>
             </div>
           </Link>
         </div>
       ) : (
         <div className="section-grid">
-          <Link to="/calculus/limits" className="grid-box">
-            <img src="/calculus.jpg" alt="Limits" className="grid-image" />
-            <div className="grid-text">Limits Introduction</div>
+          <Link to="/probability/intro" className="grid-box">
+            <img src="/probability.jpg" alt="Probability" className="grid-image" />
+            <div className="grid-text">Probability Basics</div>
           </Link>
 
-          <Link to="/calculus/derivatives" className="grid-box">
-            <img src="/calculus.jpg" alt="Derivatives" className="grid-image" />
-            <div className="grid-text">The squeezing theorem</div>
+          <Link to="/probability/random-variables" className="grid-box">
+            <img src="/random_variables.jpg" alt="Random Variables" className="grid-image" />
+            <div className="grid-text">Random Variables</div>
           </Link>
 
-          <Link to="/calculus/integration" className="grid-box">
-            <img src="/calculus.jpg" alt="Integration" className="grid-image" />
-            <div className="grid-text">L'Hôpital's rule</div>
+          <Link to="/probability/bayes" className="grid-box">
+            <img src="/bayes.jpg" alt="Bayes Formula" className="grid-image" />
+            <div className="grid-text">Bayes' Theorem</div>
           </Link>
 
-          <Link to="/calculus/chainrule" className="grid-box">
-            <img src="/calculus.jpg" alt="Chain Rule" className="grid-image" />
-            <div className="grid-text">Derivatives</div>
+          <Link to="/probability/distributions" className="grid-box">
+            <img src="/distributions.jpg" alt="Distributions" className="grid-image" />
+            <div className="grid-text">Distributions</div>
           </Link>
 
-          <Link to="/calculus/fundamentaltheorem" className="grid-box">
-            <img src="/calculus.jpg" alt="Fundamental Theorem" className="grid-image" />
-            <div className="grid-text">Differentiation rules</div>
+          <Link to="/probability/cdf-pdf-pmf" className="grid-box">
+            <img src="/cdf.jpg" alt="CDF, PDF, PMF" className="grid-image" />
+            <div className="grid-text">CDF, PDF, PMF</div>
           </Link>
 
-          <Link to="/calculus/inversefunctions" className="grid-box">
-            <img src="/calculus.jpg" alt="Inverse Functions" className="grid-image" />
-            <div className="grid-text">The Chain Rule</div>
-          </Link>
-          <Link to="/calculus/limits" className="grid-box">
-            <img src="/calculus.jpg" alt="Limits" className="grid-image" />
-            <div className="grid-text">Higher Order derivatives</div>
+          <Link to="/probability/expectation-variance" className="grid-box">
+            <img src="/expectation.jpg" alt="Expectation and Variance" className="grid-image" />
+            <div className="grid-text">Expectation & Variance</div>
           </Link>
 
-          <Link to="/calculus/derivatives" className="grid-box">
-            <img src="/calculus.jpg" alt="Derivatives" className="grid-image" />
-            <div className="grid-text">Derivatives</div>
+          <Link to="/probability/covariance-correlation" className="grid-box">
+            <img src="/covariance.jpg" alt="Covariance and Correlation" className="grid-image" />
+            <div className="grid-text">Covariance & Correlation</div>
           </Link>
 
-          <Link to="/calculus/integration" className="grid-box">
-            <img src="/calculus.jpg" alt="Integration" className="grid-image" />
-            <div className="grid-text">Integration</div>
+          <Link to="/probability/law-of-large-numbers" className="grid-box">
+            <img src="/wlln.jpg" alt="Law of Large Numbers" className="grid-image" />
+            <div className="grid-text">Law of Large Numbers</div>
           </Link>
 
-          <Link to="/calculus/chainrule" className="grid-box">
-            <img src="/calculus.jpg" alt="Chain Rule" className="grid-image" />
-            <div className="grid-text">Chain Rule</div>
-          </Link>
-
-          <Link to="/calculus/fundamentaltheorem" className="grid-box">
-            <img src="/calculus.jpg" alt="Fundamental Theorem" className="grid-image" />
-            <div className="grid-text">Integration</div>
-          </Link>
-
-          <Link to="/calculus/inversefunctions" className="grid-box">
-            <img src="/calculus.jpg" alt="Inverse Functions" className="grid-image" />
-            <div className="grid-text">Definite Integrals</div>
+          <Link to="/probability/clt" className="grid-box">
+            <img src="/clt.jpg" alt="Central Limit Theorem" className="grid-image" />
+            <div className="grid-text">Central Limit Theorem</div>
           </Link>
         </div>
       )}
     </div>
   );
-}
+};

@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function Calculus({ }) {
-
+export default function Statistics() {
   return (
-    <div className="calculus-page">
-      <CalculusHome />
+    <div className="statistics-page">
+      <StatisticsHome />
     </div>
   );
 }
 
-const CalculusHome = () => {
+const StatisticsHome = () => {
   const [isDetailView, setIsDetailView] = useState(true);
 
   const toggleView = () => {
@@ -19,159 +18,121 @@ const CalculusHome = () => {
   };
   const navigate = useNavigate();
 
-
   return (
-    <div className="calculus-page">
+    <div className="statistics-page">
       <div className="button-container">
-        <button className="transparent-button" onClick={() => navigate('/')}>
-          Back to Home
-        </button>
-        <button className="transparent-button" onClick={toggleView}>
-          {isDetailView ? "Card View" : "Detail View"}
-        </button>
+        <button className="transparent-button" onClick={() => navigate("/")}>Back to Home</button>
+        <button className="transparent-button" onClick={toggleView}>{isDetailView ? "Card View" : "Detail View"}</button>
       </div>
       {isDetailView ? (
-
         <div className="detail-view">
-
-          <Link to="/calculus" className="lesson">
-            <img src="/calculus.jpg" alt="Limits" />
+          <Link to="/statistics/descriptive" className="lesson">
+            <img src="/descriptive.jpg" alt="Descriptive Statistics" />
             <div className="lesson-content">
-              <h3>Limits Introduction and Visualization</h3>
-              <p>Brief introduction to the concept of limits and a visual tool to understand them</p>
-              <span>Feb 22, 2025</span>
+              <h3>Descriptive Statistics</h3>
+              <p>Median, Mode, Mean, Quartiles, IQR, Boxplot.</p>
             </div>
           </Link>
 
-          <Link to="/linearalgebra" className="lesson">
-            <img src="/calculus.jpg" alt="Squeezing_theorem" />
+          <Link to="/statistics/visualization" className="lesson">
+            <img src="/datavis.jpg" alt="Data Visualization" />
             <div className="lesson-content">
-              <h3>The squeezing theorem</h3>
-              <p>Understanding the squeezing theorem.</p>
-              <span>Feb 22, 2025</span>
+              <h3>Data Visualization</h3>
+              <p>Bar chart, pie chart, scatter plot, and misleading graphs.</p>
             </div>
           </Link>
 
-          <Link to="/probability" className="lesson">
-            <img src="/calculus.jpg" alt="Lhopitals_rule" />
+          <Link to="/statistics/convergence" className="lesson">
+            <img src="/convergence.jpg" alt="Convergence" />
             <div className="lesson-content">
-              <h3>L'Hôpital's rule</h3>
-              <p>This rule seems like magic, but it has an intuitive background</p>
-              <span>Feb 22, 2025</span>
+              <h3>Types of Convergence</h3>
+              <p>Understanding different types of statistical convergence.</p>
             </div>
           </Link>
 
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+          <Link to="/statistics/mse-bias" className="lesson">
+            <img src="/mse_bias.jpg" alt="MSE and Bias" />
             <div className="lesson-content">
-              <h3>Derivative of a function and Tangent lines</h3>
-              <p>Rate of change of a function, and how is it related to tangent lines</p>
-              <span>Feb 22, 2025</span>
+              <h3>MSE, Bias, and Unbiasedness</h3>
+              <p>Mean squared error, bias-variance tradeoff, and unbiasedness.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/statistics/bias-variance" className="lesson">
+            <img src="/bias_variance.jpg" alt="Bias Variance Decomposition" />
             <div className="lesson-content">
-              <h3>Differentiation rules</h3>
-              <p>How to differntiate functions withiout finding the limit every time</p>
-              <span>Feb 22, 2025</span>
+              <h3>Bias-Variance Decomposition</h3>
+              <p>Breaking down error in model predictions.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/statistics/estimators" className="lesson">
+            <img src="/estimators.jpg" alt="Estimators" />
             <div className="lesson-content">
-              <h3>The Chain Rule</h3>
-              <p>How to differentiate a function within a function with visuals</p>
-              <span>Feb 22, 2025</span>
+              <h3>Method of Moments & Maximum Likelihood Estimator</h3>
+              <p>Two fundamental estimation techniques.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/statistics/confidence-intervals" className="lesson">
+            <img src="/confidence.jpg" alt="Confidence Intervals" />
             <div className="lesson-content">
-              <h3>Higher Order derivatives</h3>
-              <p>The first derviative is rate of change of the function, but what if we differentiate again?</p>
-              <span>Feb 22, 2025</span>
+              <h3>Confidence Intervals</h3>
+              <p>Understanding uncertainty in statistical estimates.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/statistics/hypothesis-testing" className="lesson">
+            <img src="/hypothesis.jpg" alt="Hypothesis Testing" />
             <div className="lesson-content">
-              <h3>Integration and The Fundamental Theorem of Calculus</h3>
-              <p>If we have derivatives, we also will need the reverse operation</p>
-              <span>Feb 22, 2025</span>
-            </div>
-          </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
-            <div className="lesson-content">
-              <h3>Definite integrals and The area under the curve</h3>
-              <p>Integrals is the antiderivative, how is it related to the area under the curve?</p>
-              <span>Feb 22, 2025</span>
+              <h3>Hypothesis Testing</h3>
+              <p>Z-test, t-test, Chi-squared test, and decision-making.</p>
             </div>
           </Link>
         </div>
       ) : (
         <div className="section-grid">
-          <Link to="/calculus/limits" className="grid-box">
-            <img src="/calculus.jpg" alt="Limits" className="grid-image" />
-            <div className="grid-text">Limits Introduction</div>
+          <Link to="/statistics/descriptive" className="grid-box">
+            <img src="/descriptive.jpg" alt="Descriptive" className="grid-image" />
+            <div className="grid-text">Descriptive Statistics</div>
           </Link>
 
-          <Link to="/calculus/derivatives" className="grid-box">
-            <img src="/calculus.jpg" alt="Derivatives" className="grid-image" />
-            <div className="grid-text">The squeezing theorem</div>
+          <Link to="/statistics/visualization" className="grid-box">
+            <img src="/datavis.jpg" alt="Visualization" className="grid-image" />
+            <div className="grid-text">Data Visualization</div>
           </Link>
 
-          <Link to="/calculus/integration" className="grid-box">
-            <img src="/calculus.jpg" alt="Integration" className="grid-image" />
-            <div className="grid-text">L'Hôpital's rule</div>
+          <Link to="/statistics/convergence" className="grid-box">
+            <img src="/convergence.jpg" alt="Convergence" className="grid-image" />
+            <div className="grid-text">Convergence</div>
           </Link>
 
-          <Link to="/calculus/chainrule" className="grid-box">
-            <img src="/calculus.jpg" alt="Chain Rule" className="grid-image" />
-            <div className="grid-text">Derivatives</div>
+          <Link to="/statistics/mse-bias" className="grid-box">
+            <img src="/mse_bias.jpg" alt="MSE and Bias" className="grid-image" />
+            <div className="grid-text">MSE & Bias</div>
           </Link>
 
-          <Link to="/calculus/fundamentaltheorem" className="grid-box">
-            <img src="/calculus.jpg" alt="Fundamental Theorem" className="grid-image" />
-            <div className="grid-text">Differentiation rules</div>
+          <Link to="/statistics/bias-variance" className="grid-box">
+            <img src="/bias_variance.jpg" alt="Bias Variance" className="grid-image" />
+            <div className="grid-text">Bias-Variance</div>
           </Link>
 
-          <Link to="/calculus/inversefunctions" className="grid-box">
-            <img src="/calculus.jpg" alt="Inverse Functions" className="grid-image" />
-            <div className="grid-text">The Chain Rule</div>
-          </Link>
-          <Link to="/calculus/limits" className="grid-box">
-            <img src="/calculus.jpg" alt="Limits" className="grid-image" />
-            <div className="grid-text">Higher Order derivatives</div>
+          <Link to="/statistics/estimators" className="grid-box">
+            <img src="/estimators.jpg" alt="Estimators" className="grid-image" />
+            <div className="grid-text">Estimators</div>
           </Link>
 
-          <Link to="/calculus/derivatives" className="grid-box">
-            <img src="/calculus.jpg" alt="Derivatives" className="grid-image" />
-            <div className="grid-text">Derivatives</div>
+          <Link to="/statistics/confidence-intervals" className="grid-box">
+            <img src="/confidence.jpg" alt="Confidence Intervals" className="grid-image" />
+            <div className="grid-text">Confidence Intervals</div>
           </Link>
 
-          <Link to="/calculus/integration" className="grid-box">
-            <img src="/calculus.jpg" alt="Integration" className="grid-image" />
-            <div className="grid-text">Integration</div>
-          </Link>
-
-          <Link to="/calculus/chainrule" className="grid-box">
-            <img src="/calculus.jpg" alt="Chain Rule" className="grid-image" />
-            <div className="grid-text">Chain Rule</div>
-          </Link>
-
-          <Link to="/calculus/fundamentaltheorem" className="grid-box">
-            <img src="/calculus.jpg" alt="Fundamental Theorem" className="grid-image" />
-            <div className="grid-text">Integration</div>
-          </Link>
-
-          <Link to="/calculus/inversefunctions" className="grid-box">
-            <img src="/calculus.jpg" alt="Inverse Functions" className="grid-image" />
-            <div className="grid-text">Definite Integrals</div>
+          <Link to="/statistics/hypothesis-testing" className="grid-box">
+            <img src="/hypothesis.jpg" alt="Hypothesis Testing" className="grid-image" />
+            <div className="grid-text">Hypothesis Testing</div>
           </Link>
         </div>
       )}
     </div>
   );
-}
+};

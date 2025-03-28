@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "katex/dist/katex.min.css";
 import { addStyles, EditableMathField } from "react-mathquill";
-import { submitFunctionIntegral } from "./VisualCalculators";
+import { submitFunctionLimit } from "../VisualCalculators";
+import { parseLatex } from "../LatexParsing/latexParser";
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 
 addStyles();
 
@@ -37,21 +39,18 @@ const ToggleMedia = ({ imageSrc, videoSrc }) => {
     );
 };
 
-export default function Integrals() {
-    const [input, setInput] = useState("f(x)=-x^2+1");
+export default function Limits() {
+    const [input, setInput] = useState("");
     const [videoUrl, setVideoUrl] = useState(null);
     const [loading, setLoading] = useState(false);
     const [latexContent, setLatexContent] = useState("");
 
-    const [xMin, setXMin] = useState("-3");
-    const [xMax, setXMax] = useState("3");
-    const [yMin, setYMin] = useState("-3");
-    const [yMax, setYMax] = useState("3");
-    const [xStep, setXStep] = useState("1");
-    const [yStep, setYStep] = useState("1");
-    const [dx, setDX] = useState("0.05");
-    const [igFrom, setIgFrom] = useState("-1");
-    const [igTo, setIgTo] = useState("1");  
+    const [xMin, setXMin] = useState("-10");
+    const [xMax, setXMax] = useState("10");
+    const [yMin, setYMin] = useState("-10");
+    const [yMax, setYMax] = useState("10");
+    const [xStep, setXStep] = useState("0.1");
+    const navigate = useNavigate();
 
     const [sliderOpen, setSliderOpen] = useState(false);
     const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -66,58 +65,65 @@ export default function Integrals() {
             }
             lastScrollY = window.scrollY;
         };
-    
+
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
 
     useEffect(() => {
-        fetch("/Calculus_latex.txt")
+        fetch("/Squeezing_latex.txt")
             .then((response) => response.text())
             .then((text) => {
-                let cleanedLatex = text
-                    .replace(/\\documentclass{.*?}|\\usepackage{.*?}|\\begin{document}|\\end{document}|\\maketitle/gs, "")
-                    .replace(/\\(centering|label|begin{flushleft}|end{flushleft}|raggedright)/g, "")
-                    .trim();
-
-                cleanedLatex = cleanedLatex.replace(/\\\[/g, "$$").replace(/\\\]/g, "$$");
-                cleanedLatex = cleanedLatex.replace(/\\\(/g, "$").replace(/\\\)/g, "$");
-                cleanedLatex = cleanedLatex.replace(/\\section\*{(.*?)}/g, "## $1");
-                cleanedLatex = cleanedLatex.replace(/\\begin{align\*}/g, "$$").replace(/\\end{align\*}/g, "$$");
-                cleanedLatex = cleanedLatex.replace(/\\textbf{(.*?)}/g, "**$1**");
-                cleanedLatex = cleanedLatex.replace(/\\includegraphics{(.*?),(.*?)}/g, "!TOGGLE[../$1|../$2]");
-
-                setLatexContent(cleanedLatex);
+                setLatexContent(parseLatex(text));
             })
             .catch((error) => console.error("Error loading LaTeX:", error));
     }, []);
 
     return (
         <div className="limits-wrapper">
-           <nav className={`sidebar ${sidebarVisible ? "visible" : "hidden"}`}>
-                <h3>Integrals</h3>
+            <nav className={`sidebar ${sidebarVisible ? "visible" : "hidden"}`}>
+                <h3>Table of Contents</h3>
                 <ul>
                     <li>
-                        <a href="">Integrals Introduction</a>
+                        <a href="">Limits Introduction</a>
                         <ul>
                             <li><a href="">Introduction</a></li>
                             <li><a href="#examples">Examples</a></li>
-                            <li><a href="#formal-definition-of-a-limit">Definition</a></li>
+                            <li><a href="#formal-definition-of-a-limit">Formal Definition</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#limits-at-infinity">Limits at Infinity</a>
+                        <ul>
+                            <li><a href="#inf-limit-examples">Examples</a></li>
+                            <li><a href="#inf-limit-quiz">Quiz</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#one-sided-limits">One-Sided Limits</a>
+                        <ul>
+                            <li><a href="#one-sided-limit-examples">Examples</a></li>
+                            <li><a href="#one-sided-limit-quiz">Quiz</a></li>
                         </ul>
                     </li>
                 </ul>
-               
+
             </nav>
 
-        
-            <div className="limits-content">
 
+            <div className="limits-content">
+                <div className="button-container">
+                    <button className="transparent-button" onClick={() => navigate('/calculus')}>
+                        Back to Calculus
+                    </button>
+                </div>
                 <div className={`slider ${sliderOpen ? "open" : ""}`}>
                     <button className="slider-toggle" onClick={() => setSliderOpen(!sliderOpen)}>
                         {sliderOpen ? "▶ Hide" : "◀ Show"}
                     </button>
-                    <h2>Enter a Function</h2>
+                    
+                    {/*<h2>Enter a Function</h2>
                     <div className="input-container">
                         <EditableMathField
                             latex={input}
@@ -127,43 +133,31 @@ export default function Integrals() {
 
                         <h3>Function Parameters</h3>
                         <div className="range-inputs">
-                            <label>X Axis From:</label>
+                            <label>X Min:</label>
                             <input type="number" value={xMin} onChange={(e) => setXMin(e.target.value)} />
 
-                            <label>X Axis To:</label>
+                            <label>X Max:</label>
                             <input type="number" value={xMax} onChange={(e) => setXMax(e.target.value)} />
 
-                            <label>Y Axis From:</label>
+                            <label>Y Min:</label>
                             <input type="number" value={yMin} onChange={(e) => setYMin(e.target.value)} />
 
-                            <label>Y Axis To:</label>
+                            <label>Y Max:</label>
                             <input type="number" value={yMax} onChange={(e) => setYMax(e.target.value)} />
 
                             <label>X Step Size:</label>
                             <input type="number" value={xStep} onChange={(e) => setXStep(e.target.value)} />
-
-                            <label>Y Step Size:</label>
-                            <input type="number" value={yStep} onChange={(e) => setYStep(e.target.value)} />
-
-                            <label>Integral dx</label>
-                            <input type="number" value={dx} onChange={(e) => setDX(e.target.value)} />
-
-                            <label>Integral From</label>
-                            <input type="number" value={igFrom} onChange={(e) => setIgFrom(e.target.value)} />
-
-                            <label>Integral To</label>
-                            <input type="number" value={igTo} onChange={(e) => setIgTo(e.target.value)} />
                         </div>
 
                         <button
-                            onClick={() => submitFunctionIntegral(input, xMin, xMax, yMin, yMax, xStep,yStep,dx,igFrom,igTo, setLoading, setVideoUrl, videoUrl)}
+                            onClick={() => submitFunctionLimit(input, xMin, xMax, yMin, yMax, xStep, setLoading, setVideoUrl, videoUrl)}
                             disabled={loading}
                         >
                             {loading ? "Processing..." : "Generate"}
                         </button>
 
 
-                        {videoUrl ? (
+                        {/*videoUrl ? (
                             <video width="350" height="250" controls autoPlay muted>
                                 <source src={videoUrl} type="video/mp4" />
                                 Your browser does not support the video tag.
@@ -171,8 +165,12 @@ export default function Integrals() {
                         ) : (
                             <p>No visualization yet.</p>
                         )}
-                        
-                    </div>
+                        {videoUrl ? (
+                            <img src={videoUrl} alt="Limit Visualization" width="350" height="250" />
+                        ) : (
+                            <p>No visualization yet.</p>
+                        )}
+                    </div>*/}
 
 
                 </div>
@@ -184,15 +182,14 @@ export default function Integrals() {
                             if (!line) return null;
 
                             if (line.startsWith("## ")) {
-                                return <h2 key={index} id={line.replace("## ", "").toLowerCase().replace(/ /g, "-")}>{line.replace("## ", "").trim()}</h2>;
+                                const match = line.match(/## (.*?) \[#(.*?)\]/);
+                                if (match) {
+                                    return <h2 key={index} id={match[2]}>{match[1]}</h2>;
+                                }
                             }
 
                             if (line.startsWith("$$")) {
-                                return (
-                                    <div key={index} className="latex-block">
-                                        <BlockMath math={line.replace(/\$\$/g, "").trim()} />
-                                    </div>
-                                );
+                                return <div key={index} className="latex-block"><BlockMath math={line.replace(/\$\$/g, "").trim()} /></div>;
                             }
 
                             if (/\$.*?\$/.test(line)) {
@@ -200,11 +197,7 @@ export default function Integrals() {
                                 return (
                                     <p key={index} className="latex-inline">
                                         {parts.map((part, i) =>
-                                            part.startsWith("$") ? (
-                                                <InlineMath key={i} math={part.replace(/\$/g, "").trim()} />
-                                            ) : (
-                                                part
-                                            )
+                                            part.startsWith("$") ? <InlineMath key={i} math={part.replace(/\$/g, "").trim()} /> : part
                                         )}
                                     </p>
                                 );

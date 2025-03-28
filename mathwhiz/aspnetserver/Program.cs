@@ -108,7 +108,7 @@ app.UseStaticFiles();
 app.MapPost("/api/get-function-integral", async (FunctionIntegralRequest request) =>
 {
     string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Riemann_Integral_Visualizer\\1080p60"; 
-    string tempInputFile = Path.Combine(outputDirectory, "temp.txt");
+   
     string pythonScriptName = "Riemann_Integral_Visualizer.py";
     ManimRequest.RequestType type = ManimRequest.RequestType.Integral;
 
@@ -119,10 +119,10 @@ app.MapPost("/api/get-function-integral", async (FunctionIntegralRequest request
         {
             return cachedFile; 
         }
-        await File.WriteAllTextAsync(tempInputFile, request.ToString());
+        
         await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
         Console.WriteLine(request.ToString());
-        var (output, error,outputFileName) = await PythonScripts.RunPythonScript(request, FunctionRequest.scriptPath, pythonScriptName, type,"mp4",outputDirectory);
+        var (output, error,outputFileName) = await PythonScripts.RunPythonScript(request, FunctionRequest.scriptPathCalculus, pythonScriptName, type,"mp4",outputDirectory);
         string outputFile = Path.Combine(outputDirectory, outputFileName);
 
         Console.WriteLine("Output:\n" + output);
@@ -192,6 +192,49 @@ app.MapPost("/api/get-linear-transformation", async (LinearAlgebraRequest reques
     }
 });
 
+app.MapPost("/api/get-newtons-method", async (NumericalRequest request) =>
+{
+    string outputDirectory = "G:\\Capstone\\manim_animations\\Numerical\\media\\videos\\Newtons_Method_Visualizer\\1080p60";
+    string pythonScriptName = "Newtons_Method_Visualizer.py";
+    ManimRequest.RequestType type = ManimRequest.RequestType.NewtonsMethod;
+    try
+    {     
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4");
+        if (cachedFile != null)
+        {
+            return cachedFile;
+        }
+
+        await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
+        Console.WriteLine(request.ToString());
+      
+        var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
+            request, NumericalRequest.scriptPathNumerical, pythonScriptName, type, "mp4", outputDirectory
+        );
+
+        string outputFile = Path.Combine(outputDirectory, outputFileName);
+
+        Console.WriteLine("Output:\n" + output);
+        if (!string.IsNullOrEmpty(error))
+        {
+            Console.WriteLine("Errors:\n" + error);
+        }
+
+       
+        if (!File.Exists(outputFile))
+        {
+            return Results.BadRequest(new { Success = false, Message = $"Error generating video: {error}" });
+        }
+
+        var fileBytes = await File.ReadAllBytesAsync(outputFile);
+        return Results.File(fileBytes, "video/mp4", outputFileName);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Success = false, Message = ex.Message });
+    }
+});
+
 /*app.MapPost("/api/get-function-limit", async (FunctionRequest request) =>
 {
     string scriptPath = "G:\\Capstone\\manim_animations\\Calculus";
@@ -232,6 +275,49 @@ app.MapPost("/api/get-linear-transformation", async (LinearAlgebraRequest reques
         return Results.BadRequest(new { Success = false, Message = ex.Message });
     }
 });*/
+
+app.MapPost("/api/get-taylor-series", async (TaylorSeriesRequest request) =>
+{
+    string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Taylor_Series_Visualizer\\1080p60";
+    string pythonScriptName = "Taylor_Series_Visualizer.py";
+    ManimRequest.RequestType type = ManimRequest.RequestType.TaylorSeries;
+
+    try
+    {
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4");
+        if (cachedFile != null)
+        {
+            return cachedFile;
+        }
+     
+        await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
+        Console.WriteLine(request.ToString());
+
+        var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
+            request, FunctionRequest.scriptPathCalculus, pythonScriptName, type, "mp4", outputDirectory
+        );
+
+        string outputFile = Path.Combine(outputDirectory, outputFileName);
+
+        Console.WriteLine("Output:\n" + output);
+        if (!string.IsNullOrEmpty(error))
+        {
+            Console.WriteLine("Errors:\n" + error);
+        }
+
+        if (!File.Exists(outputFile))
+        {
+            return Results.BadRequest(new { Success = false, Message = $"Error generating video: {error}" });
+        }
+
+        var fileBytes = await File.ReadAllBytesAsync(outputFile);
+        return Results.File(fileBytes, "video/mp4", outputFileName);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Success = false, Message = ex.Message });
+    }
+});
 
 
 app.MapPost("/api/login", async (HttpContext context, User userToCheck) =>

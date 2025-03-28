@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using NCalc;
 
-namespace mathwhiz.Data
+namespace aspnetserver.Data.Structures
 {
     public class MathFunction
     {
@@ -15,15 +15,15 @@ namespace mathwhiz.Data
 
         public MathFunction(string latexFunction)
         {
-            this.sympyMathFunction = LatexToSympy(latexFunction);
-            this.NumericFunction = CompileFunction(LatexToCSharp(latexFunction));
+            sympyMathFunction = LatexToSympy(latexFunction);
+            NumericFunction = CompileFunction(LatexToCSharp(latexFunction));
         }
 
         private static string LatexToSympy(string latexFunction)
         {
             Console.WriteLine($"Raw input function: {latexFunction}");
 
-           
+
             latexFunction = Regex.Replace(latexFunction, @"f\s*\(x\)\s*=", "");
             latexFunction = Regex.Replace(latexFunction, @"f\\left\(x\\right\)\s*=", "");
             latexFunction = Regex.Replace(latexFunction, @"\\cdot", " * ");
@@ -49,10 +49,10 @@ namespace mathwhiz.Data
 
             latexFunction = Regex.Replace(latexFunction, @"(?<!\w)e\^({[^}]+}|\w+)", "exp($1)");
             latexFunction = Regex.Replace(latexFunction, @"(?<=exp\([^)]*\))(?=\w)", " * ");
-         
+
             latexFunction = Regex.Replace(latexFunction, @"(?<=\))(?=[a-zA-Z])", " * ");
 
-       
+
             latexFunction = Regex.Replace(latexFunction, @"(?<=[0-9a-zA-Z])(?=\s*(sin|cos|tan|exp|sqrt|log|ln|pi)\s*\()", " * ");
 
             latexFunction = latexFunction.Replace(@"\left", "").Replace(@"\right", "");
@@ -97,7 +97,7 @@ namespace mathwhiz.Data
 
         public double calculateValue(double value)
         {
-            return this.NumericFunction(value);
+            return NumericFunction(value);
         }
 
         // TODO: Create a numerical method to calculate integrals (Like Simpson's method)

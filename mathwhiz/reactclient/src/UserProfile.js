@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./UserProfileStyle.css";
+import "./Styles-CSS/UserProfileStyle.css";
 import { useParams } from "react-router-dom";
 import { useNavigate, Navigate } from "react-router-dom";
 

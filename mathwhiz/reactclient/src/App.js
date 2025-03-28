@@ -7,13 +7,14 @@ import Calculus from "./Calculus";
 import LinearAlgebra from './LinearAlgebra';
 import Probability from './Probability';
 import Statistics from './Statistics';
-import Limits from './Limits';
-import Squeezing from './Squeezing';
-import Integrals from './Integrals'
+import Limits from './LessonComponents/Limits';
+import Squeezing from './LessonComponents/Squeezing';
+import Integrals from './LessonComponents/Integrals'
 import Registration from './RegistrationForm';
 import UserProfile from './UserProfile';
 import VisualCalculators from './VisualCalculators.js';
 import NewtonFractal from './NewtonsFractal.js';
+import ThreeDGraphing from './ThreeDGraphing.js';
 import './Styles-CSS/style.css';
 
 addMathQuillStyles();
@@ -132,15 +133,15 @@ export default function App() {
               {/*<button className="nav-link" onClick={() => navigate(-1)}>Previous Section</button>*/}
             </h2>
           </div>
-         
+          <Link to={'/newtonFractal'}><button>2D Graphing Calculator</button></Link>
+          <Link to={'/threeDGraphing'}><button>3D Graphing Calculator</button></Link>
           <div className="navbar-right">
-          <Link to={'/newtonFractal'}><button>test</button></Link>
             <div className="user-menu" onClick={() => setDropdownOpen(!dropdownOpen)}>
               <img
                 src={profileImage}
                 alt="User Profile"
                 className="user-icon"
-                onError={(e) => (e.target.src = "/Koala.jpg")} // Fallback if image fails to load
+                onError={(e) => (e.target.src = "/Koala.jpg")} 
               />
               <span className="arrow">&#9662;</span>
             </div>
@@ -171,6 +172,7 @@ export default function App() {
         <Route path="/visualCalculators" element={isLoggedIn ? <VisualCalculators /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} />} />
         <Route path="/newtonFractal" element={isLoggedIn ? <NewtonFractal /> : <Navigate to="/login" />} />
+        <Route path="/threeDGraphing" element={isLoggedIn ? <ThreeDGraphing /> : <Navigate to="/login" />} />
       </Routes>
     </div>
   );

@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function Calculus({ }) {
-
+export default function LinearAlgebra() {
   return (
-    <div className="calculus-page">
-      <CalculusHome />
+    <div className="linear-algebra-page">
+      <LinearAlgebraHome />
     </div>
   );
 }
 
-const CalculusHome = () => {
+const LinearAlgebraHome = () => {
   const [isDetailView, setIsDetailView] = useState(true);
 
   const toggleView = () => {
@@ -19,159 +18,108 @@ const CalculusHome = () => {
   };
   const navigate = useNavigate();
 
-
   return (
-    <div className="calculus-page">
+    <div className="linear-algebra-page">
       <div className="button-container">
-        <button className="transparent-button" onClick={() => navigate('/')}>
-          Back to Home
-        </button>
-        <button className="transparent-button" onClick={toggleView}>
-          {isDetailView ? "Card View" : "Detail View"}
-        </button>
+        <button className="transparent-button" onClick={() => navigate("/")}>Back to Home</button>
+        <button className="transparent-button" onClick={toggleView}>{isDetailView ? "Card View" : "Detail View"}</button>
       </div>
       {isDetailView ? (
-
         <div className="detail-view">
-
-          <Link to="/calculus" className="lesson">
-            <img src="/calculus.jpg" alt="Limits" />
+          <Link to="/linear-algebra/vectors" className="lesson">
+            <img src="/vectors.jpg" alt="Vectors" />
             <div className="lesson-content">
-              <h3>Limits Introduction and Visualization</h3>
-              <p>Brief introduction to the concept of limits and a visual tool to understand them</p>
-              <span>Feb 22, 2025</span>
+              <h3>Vectors and Their Operations</h3>
+              <p>Understanding vectors, addition, scalar multiplication, and their geometric interpretations.</p>
             </div>
           </Link>
 
-          <Link to="/linearalgebra" className="lesson">
-            <img src="/calculus.jpg" alt="Squeezing_theorem" />
+          <Link to="/linear-algebra/span-basis" className="lesson">
+            <img src="/span.jpg" alt="Span and Basis" />
             <div className="lesson-content">
-              <h3>The squeezing theorem</h3>
-              <p>Understanding the squeezing theorem.</p>
-              <span>Feb 22, 2025</span>
+              <h3>Linear Combinations, Span, and Basis</h3>
+              <p>How vectors form spaces, and the concepts of basis and linear independence.</p>
             </div>
           </Link>
 
-          <Link to="/probability" className="lesson">
-            <img src="/calculus.jpg" alt="Lhopitals_rule" />
+          <Link to="/linear-algebra/linear-transformations" className="lesson">
+            <img src="/transformations.jpg" alt="Linear Transformations" />
             <div className="lesson-content">
-              <h3>L'Hôpital's rule</h3>
-              <p>This rule seems like magic, but it has an intuitive background</p>
-              <span>Feb 22, 2025</span>
+              <h3>Linear Transformations</h3>
+              <p>Understanding how linear transformations affect vector spaces.</p>
             </div>
           </Link>
 
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+          <Link to="/linear-algebra/matrix-multiplication" className="lesson">
+            <img src="/matrices.jpg" alt="Matrix Multiplication" />
             <div className="lesson-content">
-              <h3>Derivative of a function and Tangent lines</h3>
-              <p>Rate of change of a function, and how is it related to tangent lines</p>
-              <span>Feb 22, 2025</span>
+              <h3>Matrix Multiplication</h3>
+              <p>Learn how matrices interact and their importance in linear algebra.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/linear-algebra/determinants" className="lesson">
+            <img src="/determinants.jpg" alt="Determinants" />
             <div className="lesson-content">
-              <h3>Differentiation rules</h3>
-              <p>How to differntiate functions withiout finding the limit every time</p>
-              <span>Feb 22, 2025</span>
+              <h3>Determinants</h3>
+              <p>What determinants tell us about transformations and matrix properties.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/linear-algebra/inverse-null-rank" className="lesson">
+            <img src="/inverse.jpg" alt="Inverse Matrices" />
             <div className="lesson-content">
-              <h3>The Chain Rule</h3>
-              <p>How to differentiate a function within a function with visuals</p>
-              <span>Feb 22, 2025</span>
+              <h3>Inverse Matrices, Null Space, and Rank</h3>
+              <p>Understanding invertibility, null space, and rank of matrices.</p>
             </div>
           </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
+
+          <Link to="/linear-algebra/eigenvectors" className="lesson">
+            <img src="/eigenvectors.jpg" alt="Eigenvectors and Eigenvalues" />
             <div className="lesson-content">
-              <h3>Higher Order derivatives</h3>
-              <p>The first derviative is rate of change of the function, but what if we differentiate again?</p>
-              <span>Feb 22, 2025</span>
-            </div>
-          </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
-            <div className="lesson-content">
-              <h3>Integration and The Fundamental Theorem of Calculus</h3>
-              <p>If we have derivatives, we also will need the reverse operation</p>
-              <span>Feb 22, 2025</span>
-            </div>
-          </Link>
-          <Link to="/statistics" className="lesson">
-            <img src="/calculus.jpg" alt="Derivatives" />
-            <div className="lesson-content">
-              <h3>Definite integrals and The area under the curve</h3>
-              <p>Integrals is the antiderivative, how is it related to the area under the curve?</p>
-              <span>Feb 22, 2025</span>
+              <h3>Eigenvectors and Eigenvalues</h3>
+              <p>The role of eigenvectors and eigenvalues in transformations and applications.</p>
             </div>
           </Link>
         </div>
       ) : (
         <div className="section-grid">
-          <Link to="/calculus/limits" className="grid-box">
-            <img src="/calculus.jpg" alt="Limits" className="grid-image" />
-            <div className="grid-text">Limits Introduction</div>
+          <Link to="/linear-algebra/vectors" className="grid-box">
+            <img src="/vectors.jpg" alt="Vectors" className="grid-image" />
+            <div className="grid-text">Vectors and Operations</div>
           </Link>
 
-          <Link to="/calculus/derivatives" className="grid-box">
-            <img src="/calculus.jpg" alt="Derivatives" className="grid-image" />
-            <div className="grid-text">The squeezing theorem</div>
+          <Link to="/linear-algebra/span-basis" className="grid-box">
+            <img src="/span.jpg" alt="Span" className="grid-image" />
+            <div className="grid-text">Span and Basis</div>
           </Link>
 
-          <Link to="/calculus/integration" className="grid-box">
-            <img src="/calculus.jpg" alt="Integration" className="grid-image" />
-            <div className="grid-text">L'Hôpital's rule</div>
+          <Link to="/linear-algebra/linear-transformations" className="grid-box">
+            <img src="/transformations.jpg" alt="Transformations" className="grid-image" />
+            <div className="grid-text">Linear Transformations</div>
           </Link>
 
-          <Link to="/calculus/chainrule" className="grid-box">
-            <img src="/calculus.jpg" alt="Chain Rule" className="grid-image" />
-            <div className="grid-text">Derivatives</div>
+          <Link to="/linear-algebra/matrix-multiplication" className="grid-box">
+            <img src="/matrices.jpg" alt="Matrix Multiplication" className="grid-image" />
+            <div className="grid-text">Matrix Multiplication</div>
           </Link>
 
-          <Link to="/calculus/fundamentaltheorem" className="grid-box">
-            <img src="/calculus.jpg" alt="Fundamental Theorem" className="grid-image" />
-            <div className="grid-text">Differentiation rules</div>
+          <Link to="/linear-algebra/determinants" className="grid-box">
+            <img src="/determinants.jpg" alt="Determinants" className="grid-image" />
+            <div className="grid-text">Determinants</div>
           </Link>
 
-          <Link to="/calculus/inversefunctions" className="grid-box">
-            <img src="/calculus.jpg" alt="Inverse Functions" className="grid-image" />
-            <div className="grid-text">The Chain Rule</div>
-          </Link>
-          <Link to="/calculus/limits" className="grid-box">
-            <img src="/calculus.jpg" alt="Limits" className="grid-image" />
-            <div className="grid-text">Higher Order derivatives</div>
+          <Link to="/linear-algebra/inverse-null-rank" className="grid-box">
+            <img src="/inverse.jpg" alt="Inverse Matrices" className="grid-image" />
+            <div className="grid-text">Inverse Matrices</div>
           </Link>
 
-          <Link to="/calculus/derivatives" className="grid-box">
-            <img src="/calculus.jpg" alt="Derivatives" className="grid-image" />
-            <div className="grid-text">Derivatives</div>
-          </Link>
-
-          <Link to="/calculus/integration" className="grid-box">
-            <img src="/calculus.jpg" alt="Integration" className="grid-image" />
-            <div className="grid-text">Integration</div>
-          </Link>
-
-          <Link to="/calculus/chainrule" className="grid-box">
-            <img src="/calculus.jpg" alt="Chain Rule" className="grid-image" />
-            <div className="grid-text">Chain Rule</div>
-          </Link>
-
-          <Link to="/calculus/fundamentaltheorem" className="grid-box">
-            <img src="/calculus.jpg" alt="Fundamental Theorem" className="grid-image" />
-            <div className="grid-text">Integration</div>
-          </Link>
-
-          <Link to="/calculus/inversefunctions" className="grid-box">
-            <img src="/calculus.jpg" alt="Inverse Functions" className="grid-image" />
-            <div className="grid-text">Definite Integrals</div>
+          <Link to="/linear-algebra/eigenvectors" className="grid-box">
+            <img src="/eigenvectors.jpg" alt="Eigenvectors" className="grid-image" />
+            <div className="grid-text">Eigenvectors and Eigenvalues</div>
           </Link>
         </div>
       )}
     </div>
   );
-}
+};

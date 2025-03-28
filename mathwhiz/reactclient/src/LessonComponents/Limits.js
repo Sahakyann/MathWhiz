@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "katex/dist/katex.min.css";
 import { addStyles, EditableMathField } from "react-mathquill";
-import { submitFunctionLimit } from "./VisualCalculators";
-import { parseLatex } from "./LatexParsing/latexParser";
+import { submitFunctionLimit } from "../VisualCalculators";
+import { parseLatex } from "../LatexParsing/latexParser";
 import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
-import './Styles-CSS/lessons.css';
-import QuizComponent from "./LessonComponents/QuizComponent";
+import '../Styles-CSS/lessons.css';
+import QuizComponent from "./QuizComponent";
 addStyles();
 
 

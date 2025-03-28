@@ -43,12 +43,6 @@ class GetRiemannRectangles(Scene):
             print("Error: One or more parameters could not be converted to float.")
             return
 
-  
-        x = sp.symbols('x')
-        symbolic_expr = sp.sympify(sympy_function, evaluate=False)
-        func = sp.lambdify(x, symbolic_expr, modules=["numpy"])
-
-    
         axes = Axes(
             x_range=[xMin, xMax, xStep], 
             y_range=[yMin, yMax, yStep],
@@ -56,6 +50,73 @@ class GetRiemannRectangles(Scene):
             y_length=6,
             axis_config={"include_tip": True, 'tip_shape': StealthTip}
         ).add_coordinates()
+
+        function_label = (
+            MathTex("f(x)=",latex_function)   
+            .to_edge(UL)
+            .set_color(BLUE)
+            .scale(0.6)
+        )
+
+        x = sp.symbols('x')
+        symbolic_expr = sp.sympify(sympy_function, evaluate=False)
+        func = sp.lambdify(x, symbolic_expr, modules=["numpy"])
+        singularities = sp.singularities(symbolic_expr, x)
+        singular_points = [float(s.evalf()) for s in singularities if s.is_real]
+
+        singular_points = sorted([s for s in singular_points if xMin < s < xMax])
+
+        plot_intervals = []
+        previous_x = xMin
+
+        for singularity in singular_points:
+            if previous_x < singularity - 0.01:
+                plot_intervals.append((previous_x, singularity - 0.01))
+            previous_x = singularity + 0.01
+
+        if previous_x < xMax:
+            plot_intervals.append((previous_x, xMax))
+
+       
+        graphs = []
+        for start, end in plot_intervals:
+            graph_segment = axes.plot(func, x_range=(start, end, xStep), color=YELLOW)
+            graphs.append(graph_segment)
+
+     
+        integration_intervals = []
+        previous_x = integral_from
+
+        for singularity in singular_points:
+            if previous_x < singularity - 0.01:
+                integration_intervals.append((previous_x, singularity - 0.01))
+            previous_x = singularity + 0.01
+
+        if previous_x < integral_to:
+            integration_intervals.append((previous_x, integral_to))
+
+        riemann_rects = []
+        for start, end in integration_intervals:
+            graph_segment = axes.plot(func, x_range=(start, end, xStep), color=GREEN)
+            riemann_rects.append(axes.get_riemann_rectangles(graph_segment, x_range=[start, end], dx=integral_dx))
+
+
+        self.add(axes)
+        for graph in graphs:
+            self.play(Create(graph)) 
+        self.play(Create(function_label))
+
+        for rect in riemann_rects:
+            self.play(Create(rect))
+
+        self.wait(2)
+  
+        '''x = sp.symbols('x')
+        symbolic_expr = sp.sympify(sympy_function, evaluate=False)
+        func = sp.lambdify(x, symbolic_expr, modules=["numpy"])
+
+    
+       
 
      
         graph = axes.plot(func, x_range=(xMin, xMax, xStep), color=YELLOW)
@@ -65,7 +126,7 @@ class GetRiemannRectangles(Scene):
         axes_labels = VGroup(x_label, y_label)
 
         function_label = (
-            MathTex(latex_function)   
+            MathTex("f(x)=",latex_function)   
             .to_edge(UL)
             .set_color(BLUE)
             .scale(0.6)
@@ -78,4 +139,4 @@ class GetRiemannRectangles(Scene):
         self.play(Create(axes), Create(graph))
         self.play(Create(function_label))
         self.play(Create(riemann_rectangles))
-        self.wait(2)
+        self.wait(2)'''

@@ -25,7 +25,7 @@ namespace aspnetserver.Data
             await Console.Out.WriteLineAsync($"Trying to find the cached file in:\n{cachedFile}");
             if (File.Exists(cachedFile))
             {
-                Console.WriteLine($"Returning cached LinearAlgebra visualization for hash: {RequestHash}");
+                Console.WriteLine($"Returning cached {type} visualization for hash: {RequestHash}");
                 var fileBytesCached = await File.ReadAllBytesAsync(cachedFile);
                 return Results.File(fileBytesCached, "video/mp4", cachedFile);
             }
@@ -47,7 +47,9 @@ namespace aspnetserver.Data
             Limit = 0,
             Derivative = 1,
             Integral = 2,
-            LinearTransformation = 3
+            LinearTransformation = 3,
+            TaylorSeries = 4,
+            NewtonsMethod = 5
         }
     }
 }
