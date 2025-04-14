@@ -16,7 +16,7 @@ const Login = ({ onLogin }) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include", 
-            body: JSON.stringify({ display_name: username, password }),
+            body: JSON.stringify({ username, password }),
         });
 
         const data = await response.json();
@@ -41,7 +41,7 @@ const Login = ({ onLogin }) => {
 
       <div className="login-video">
         <video className="video-bg" autoPlay loop muted>
-          <source src="CalculusBackground_loop.mp4" type="video/mp4" />
+          <source src="Section_Transform.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       </div>
@@ -62,7 +62,7 @@ const Login = ({ onLogin }) => {
             <Link to="/register">
             <button type="button">Sign Up</button>
             </Link>
-             <button type="submit">Login</button> 
+             <button type="submit">Log in</button> 
             {error && <p className="error-message">{error}</p>}
           </form>
         </div>

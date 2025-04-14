@@ -118,6 +118,17 @@
     margin-right: 10px;
 }
 
+.latex-container ul {
+  padding-left: 2rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  text-align: left;
+  list-style-position: inside;
+}
+
+.latex-container li {
+  margin-bottom: 0.5rem;
+}
 
   
 .latex-container {
@@ -136,15 +147,15 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Aligns content to the left */
-    max-width: 600px; /* Matches video width */
+    align-items: flex-start; 
+    max-width: 600px; 
     margin: 1rem auto;
 }
 
 .toggle-button {
     position: absolute;
-    top: -18px; /* Moves button above the video */
-    left: 0; /* Aligns it to the left */
+    top: -18px; 
+    left: 0;
     background: #2c2c2c;
     color: white;
     border: none;

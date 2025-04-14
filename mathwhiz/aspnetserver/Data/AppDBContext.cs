@@ -6,8 +6,10 @@ namespace mathwhiz.Data
     internal sealed class AppDBContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<UserSavedAsset> SavedAssets { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder dbContextOptionsBuilder) => dbContextOptionsBuilder.UseSqlServer("Server=localhost;Database=master;Trusted_Connection=True;TrustServerCertificate=True");
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,8 +20,10 @@ namespace mathwhiz.Data
                 usersToSeed[i - 1] = new User
                 {
                     userID = i,
-                    display_name = $"User{i}",
-                    password = $"123"
+                    username = $"User{i}",
+                    password = $"123",
+                    display_name = $"Display Name{i}",
+                    user_bio = $"My name is Giorgio, but everybody calls me User{i}"
                 };
             }
         }

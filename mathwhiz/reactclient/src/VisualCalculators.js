@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addStyles, EditableMathField } from "react-mathquill";
 import "./Styles-CSS/visualCalculators.css";
-
+import { useParams } from "react-router-dom";
 addStyles();
 
 export default function VisualCalculators() {
@@ -34,31 +34,85 @@ export default function VisualCalculators() {
     const [expansionPoint, setExpansionPoint] = useState("0");
     const [degree, setDegree] = useState("5");
 
+    const { userId } = useParams();
+
     const [initialGuess, setInitialGuess] = useState("1.5");
     const [maxIterations, setMaxIterations] = useState("6");
 
+    const [showVideo, setShowVideo] = useState(true);
+    const [showExplanation, setShowExplanation] = useState(false);
+
     const [vectors, setVectors] = useState([[2, 3]]);
+
+    const [showNamePrompt, setShowNamePrompt] = useState(false);
+    const [customFileName, setCustomFileName] = useState("");
 
     const handleSubmit = () => {
         if (selectedType === "limit") {
             submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoading, setVideoUrl, videoUrl);
         } else if (selectedType === "integral") {
-            submitFunctionIntegral(input, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, igFrom, igTo, setLoading, setVideoUrl, videoUrl);
+            submitFunctionIntegral(input, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, igFrom, igTo, setLoading, setVideoUrl, videoUrl, userId);
         } else if (selectedType === "derivative") {
-            submitFunctionDerivative(input, xMin, xMax, yMin, yMax, xStep, yStep, derivFrom, derivTo, setLoading, setVideoUrl, videoUrl);
+            submitFunctionDerivative(input, xMin, xMax, yMin, yMax, xStep, yStep, derivFrom, derivTo, setLoading, setVideoUrl, videoUrl, userId);
         } else if (selectedType === "linear-transformation") {
-            submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl)
+            submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId)
+        } else if (selectedType === "eigenvector-visualizer") {
+            submitEigenvalueVisualizer(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId);
         } else if (selectedType === "taylor-series") {
-            submitFunctionTaylorSeries(input, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl);
-        } else if (selectedType === "newtons-method"){
-            submitFunctionNewtonsMethod(input, initialGuess, xMin, xMax, maxIterations,setLoading, setVideoUrl, videoUrl);
-       
+            submitFunctionTaylorSeries(input, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl, userId);
+        } else if (selectedType === "newtons-method") {
+            submitFunctionNewtonsMethod(input, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl, userId);
+
         }
     };
 
+    //console.log(`User Id Received ${userId}`);
+
+    const downloadVideo = () => {
+        if (!videoUrl) {
+            alert("No video available to download.");
+            return;
+        }
+
+        const link = document.createElement("a");
+        link.href = videoUrl;
+
+        const fileName = `${selectedType.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())} Visualization.mp4`;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
+
         <div className="visualization-container">
+            <div className="visualization-controls">
+                <button
+                    className={showVideo ? "active" : ""}
+                    onClick={() => { setShowVideo(true); setShowExplanation(false); }}
+                >
+                    Show Video
+                </button>
+                <button
+                    className={showExplanation ? "active" : ""}
+                    onClick={() => { setShowVideo(false); setShowExplanation(true); }}
+                >
+                    Show Explanation
+                </button>
+                <button
+                    onClick={() => setShowNamePrompt(true)}
+                    disabled={!videoUrl || !showVideo}
+                >
+                    Save to Profile
+                </button>
+                <button
+                    onClick={downloadVideo}
+                    disabled={!videoUrl || !showVideo}
+                >
+                    Download
+                </button>
+            </div>
             <div className="sidebar-visualizer">
                 <VisualizationSelector selectedType={selectedType} setSelectedType={setSelectedType} />
 
@@ -85,7 +139,7 @@ export default function VisualCalculators() {
                     />
                 )}
 
-                {selectedType === "linear-transformation" && (
+                {(selectedType === "linear-transformation" || selectedType === "eigenvector-visualizer") && (
                     <LinearTransformationInput
                         matrixA={matrixA} setMatrixA={setMatrixA}
                         matrixB={matrixB} setMatrixB={setMatrixB}
@@ -114,23 +168,91 @@ export default function VisualCalculators() {
                 )}
 
                 <div>
-                    <button onClick={handleSubmit} disabled={loading}>
+                    <button onClick={handleSubmit} disabled={loading || !showVideo}>
                         {loading ? "Processing..." : "Generate"}
                     </button>
                 </div>
+                <button className="transparent-button" onClick={() => navigate(`/toolsHub/${userId}`)}>
+                    Back to Tools
+                </button>
             </div>
 
             <div className="visualizer">
-                {videoUrl ? (
+                {showVideo && videoUrl && (
                     <video width="100%" height="100%" controls autoPlay muted>
                         <source src={videoUrl} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
-                ) : (
+                )}
+
+                {showExplanation && (
+                    <div>
+                        <h3>
+                            {selectedType === "integral" && "Integral Visualization (Riemann Sums)"}
+                            {selectedType === "derivative" && "This visualization illustrates the slope of the tangent line at different points along the curve, showing the derivative of the function."}
+                            {selectedType === "linear-transformation" && "Linear Transformation"}
+                            {selectedType === "taylor-series" && "Taylor Series"}
+                            {selectedType === "newtons-method" && "Newton’s Method"}
+                            {selectedType === "eigenvector-visualizer" && "Eigenvectors"}
+                        </h3>
+                        <p>
+                            {selectedType === "integral" && "This visualization demonstrates the concept of definite integration by approximating the area under the curve using small rectangles (Riemann sums)."}
+                            {selectedType === "derivative" && "This visualization illustrates the slope of the tangent line at different points along the curve, showing the derivative of the function."}
+                            {selectedType === "linear-transformation" && "This shows how vectors are transformed under a 2×2 matrix transformation — stretching, rotating, or flipping them in space."}
+                            {selectedType === "taylor-series" && "This shows how a function can be approximated using a polynomial expansion around a point using its derivatives (Taylor Series)."}
+                            {selectedType === "newtons-method" && "This shows how Newton’s Method iteratively finds roots of a function using tangent lines from an initial guess."}
+                        </p>
+                    </div>
+                )}
+
+                {!videoUrl && !showExplanation && (
                     <p className="placeholder-text">No visualization yet.</p>
                 )}
+
             </div>
+            {showNamePrompt && (
+                <div className="filename-prompt-slide-up">
+                    <div className="filename-box">
+                        <label>Name your file:</label>
+                        <input
+                            type="text"
+                            value={customFileName}
+                            onChange={(e) => setCustomFileName(e.target.value)}
+                            placeholder="Enter file name..."
+                        />
+                        <button
+                            onClick={() => {
+                                if (!customFileName.trim()) {
+                                    alert("Please enter a file name.");
+                                    return;
+                                }
+                                saveVisualizationToProfile(userId, customFileName, setLoading);
+                                setShowNamePrompt(false);
+                            }}
+                        >
+                            Save
+                        </button>
+                        <button
+                            className="cancel-button"
+                            onClick={() => {
+                                const prompt = document.querySelector(".filename-prompt-slide-up");
+                                if (prompt) {
+                                    prompt.classList.remove("slide-up");
+                                    prompt.classList.add("slide-down");
+
+                                    setTimeout(() => setShowNamePrompt(false), 200);
+                                } else {
+                                    setShowNamePrompt(false);
+                                }
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 }
 
@@ -142,6 +264,7 @@ export function VisualizationSelector({ selectedType, setSelectedType }) {
                 <option value="integral">Integral Visualization</option>
                 <option value="derivative">Derivative Visualization</option>
                 <option value="linear-transformation">Linear Transformation</option>
+                <option value="eigenvector-visualizer">Eigenvectors</option>
                 <option value="taylor-series">Taylor Series Approximation</option>
                 <option value="newtons-method">Newton's Method</option>
             </select>
@@ -162,7 +285,7 @@ export function IntegralInput({
     yMax, setYMax
 }) {
     return (
-        <div>
+        <div className="side-input-container">
             <h2>Integral Visualization</h2>
 
             <div className="integral-function-container">
@@ -210,7 +333,7 @@ export function IntegralInput({
 
 export function DerivativeInput({ input, setInput, derivFrom, setDerivFrom, derivTo, setDerivTo }) {
     return (
-        <div className="derivative-container">
+        <div className="side-input-container">
             <h2>Derivative Visualization</h2>
 
             <div className="function-input">
@@ -250,7 +373,7 @@ export function LinearTransformationInput({ matrixA, setMatrixA, matrixB, setMat
     };
 
     return (
-        <div className="linear-transformation-container">
+        <div className="side-input-container">
             <h2>Linear Transformation Visualization</h2>
 
 
@@ -286,7 +409,7 @@ export function LinearTransformationInput({ matrixA, setMatrixA, matrixB, setMat
 
 export function TaylorSeriesInput({ input, setInput, expansionPoint, setExpansionPoint, degree, setDegree, xMin, setXMin, xMax, setXMax }) {
     return (
-        <div>
+        <div className="side-input-container">
             <h2>Taylor Series Approximation</h2>
 
             <label>Function f(x): </label>
@@ -316,7 +439,7 @@ export function TaylorSeriesInput({ input, setInput, expansionPoint, setExpansio
 
 export function NewtonsMethodInput({ input, setInput, initialGuess, setInitialGuess, maxIterations, setMaxIterations }) {
     return (
-        <div className="newtons-method-container">
+        <div className="side-input-container">
             <h2>Newton's Method Visualization</h2>
 
             <label>Function f(x):</label>
@@ -369,6 +492,36 @@ export async function submitFunctionDerivative(input, xMin, xMax, yMin, yMax, xS
     }
 }
 
+async function submitEigenvalueVisualizer(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId) {
+    try {
+        setLoading(true);
+        const response = await axios.post(
+            `https://localhost:7160/api/get-eigenvector-visualizer/${userId}`,
+            {
+                matrix: [
+                    [parseFloat(matrixA), parseFloat(matrixB)],
+                    [parseFloat(matrixC), parseFloat(matrixD)]
+                ],
+                vectors
+            },
+            { responseType: "blob" }
+        );
+
+        if (videoUrl) {
+            URL.revokeObjectURL(videoUrl);
+        }
+
+        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
+        setVideoUrl(null);
+        setTimeout(() => setVideoUrl(url), 10);
+    } catch (error) {
+        console.error("Error submitting eigenvalue visualizer:", error);
+        alert("Failed to generate Eigenvalue visualizer.");
+    } finally {
+        setLoading(false);
+    }
+}
+
 export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoading, setVideoUrl, videoUrl) {
     try {
         setLoading(true);
@@ -393,11 +546,11 @@ export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoad
     }
 }
 
-export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to, setLoading, setVideoUrl, videoUrl) {
+export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to, setLoading, setVideoUrl, videoUrl, userId) {
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-function-integral",
+            `https://localhost:7160/api/get-function-integral/${userId}`,
             { latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to },
             { responseType: "blob" }
         );
@@ -408,7 +561,7 @@ export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, y
 
         const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
         setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 100);
+        setTimeout(() => setVideoUrl(url), 10);
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate visualization. Please check your input and try again.");
@@ -417,11 +570,11 @@ export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, y
     }
 }
 
-export async function submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl) {
+export async function submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId) {
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-linear-transformation",
+            `https://localhost:7160/api/get-linear-transformation/${userId}`,
             {
                 matrix: [
                     [parseFloat(matrixA), parseFloat(matrixB)],
@@ -437,7 +590,7 @@ export async function submitFunctionLinearTransformation(matrixA, matrixB, matri
 
         const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
         setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 100);
+        setTimeout(() => setVideoUrl(url), 10);
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate visualization. Please check your input and try again.");
@@ -446,11 +599,11 @@ export async function submitFunctionLinearTransformation(matrixA, matrixB, matri
     }
 }
 
-export async function submitFunctionNewtonsMethod(latex_function, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl) {
+export async function submitFunctionNewtonsMethod(latex_function, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl, userId) {
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-newtons-method",
+            `https://localhost:7160/api/get-newtons-method/${userId}`,
             {
                 latex_function: latex_function,
                 initialGuess: initialGuess,
@@ -467,7 +620,7 @@ export async function submitFunctionNewtonsMethod(latex_function, initialGuess, 
 
         const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
         setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 100);
+        setTimeout(() => setVideoUrl(url), 10);
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate Newton's Method visualization. Please check your input.");
@@ -476,11 +629,11 @@ export async function submitFunctionNewtonsMethod(latex_function, initialGuess, 
     }
 }
 
-export async function submitFunctionTaylorSeries(latex_function, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl) {
+export async function submitFunctionTaylorSeries(latex_function, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl, userId) {
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-taylor-series",
+            `https://localhost:7160/api/get-taylor-series/${userId}`,
             {
                 latex_function,
                 expansionPoint,
@@ -497,7 +650,7 @@ export async function submitFunctionTaylorSeries(latex_function, expansionPoint,
 
         const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
         setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 100);
+        setTimeout(() => setVideoUrl(url), 10);
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate Taylor series visualization. Please check your input and try again.");
@@ -505,3 +658,27 @@ export async function submitFunctionTaylorSeries(latex_function, expansionPoint,
         setLoading(false);
     }
 }
+
+export async function saveVisualizationToProfile(userId, fileName, setLoading) {
+    try {
+        setLoading(true);
+        const response = await axios.post(
+            `https://localhost:7160/api/upload-user-asset/${userId}/${fileName}`,
+            {},
+            {
+                withCredentials: true
+            }
+        );
+        if (response.data.success) {
+            alert("Visualization saved to your profile!");
+        } else {
+            alert("Failed to save visualization: " + response.data.message);
+        }
+    } catch (error) {
+        console.error("Error saving visualization:", error);
+        alert("An error occurred while saving the video.");
+    } finally {
+        setLoading(false);
+    }
+}
+

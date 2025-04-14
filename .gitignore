@@ -49,9 +49,22 @@ python_script_testing
 /manim_animations/Numerical/media/
 /manim_animations/Numerical/__pycache__
 
+/manim_animations/Probability/media/
+/manim_animations/Probability/__pycache__
+
+/manim_animations/Statistics/media/
+/manim_animations/Statistics/__pycache__
+
+/manim_animations/Extras/media/
+/manim_animations/Extras/__pycache__
+
 /manim_animations/RequestJsonTempFiles/
 
 /mathwhiz/aspnetserver/aspnetserver.csproj
 
 /generator.txt
-mathwhiz/aspnetserver/appsettings.json
+/mathwhiz/aspnetserver/appsettings.json
+/mathwhiz/aspnetserver/RequestHashes.json
+
+/mathwhiz/aspnetserver/wwwroot/
+/mathwhiz/aspnetserver/migrations/

@@ -9,7 +9,7 @@ namespace mathwhiz.Data
 
         [Required]
         [MaxLength(30)]
-        public required string display_name { get; set; }
+        public required string username { get; set; }
 
         [Required]
         [MaxLength(30)]
@@ -17,5 +17,17 @@ namespace mathwhiz.Data
 
         [MaxLength(255)]
         public string profile_picture { get; set; }
+
+        [MaxLength(255)]
+        public string profile_background { get; set; }
+
+        [MaxLength(30)]
+        public string display_name { get; set; }
+
+        [MaxLength(300)]
+        public string user_bio { get; set; }
+
+
+
     }
 }

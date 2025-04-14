@@ -32,7 +32,7 @@ const Register = () => {
   };
 
   return (
-    <div className="login-container">   
+    <div className="login-container">
       <div className="login-box">
         <div className="login-content">
           <h2>Sign Up</h2>
@@ -48,6 +48,9 @@ const Register = () => {
             <button type="submit">Sign Up</button>
             {error && <p className="error-message">{error}</p>}
           </form>
+          <button onClick={() => navigate('/login')}>
+            Back to Home
+          </button>
         </div>
       </div>
     </div>

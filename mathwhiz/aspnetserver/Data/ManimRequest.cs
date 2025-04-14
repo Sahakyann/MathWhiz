@@ -19,13 +19,17 @@ namespace aspnetserver.Data
             RequestHash = HashStore.GetOrCreateRequestHash(ToString());
         }
 
-        public async Task<IResult> GetCachedFileAsync(RequestType type, string Directory, string fileExtension)
+        public async Task<IResult> GetCachedFileAsync(RequestType type, string Directory, string fileExtension, int userId)
         {
             string cachedFile = Path.Combine(Directory, $"{type}_{RequestHash}.{fileExtension}");
             await Console.Out.WriteLineAsync($"Trying to find the cached file in:\n{cachedFile}");
             if (File.Exists(cachedFile))
             {
                 Console.WriteLine($"Returning cached {type} visualization for hash: {RequestHash}");
+
+                // Store the retrieved file path in the run-time cache. Later, if the user decides to save the file to their profile, we can retrieve it
+                VisualizationCache.Store(userId, cachedFile);
+
                 var fileBytesCached = await File.ReadAllBytesAsync(cachedFile);
                 return Results.File(fileBytesCached, "video/mp4", cachedFile);
             }
@@ -49,7 +53,8 @@ namespace aspnetserver.Data
             Integral = 2,
             LinearTransformation = 3,
             TaylorSeries = 4,
-            NewtonsMethod = 5
+            NewtonsMethod = 5,
+            Eigenvectors = 6
         }
     }
 }

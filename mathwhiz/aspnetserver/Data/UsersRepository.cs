@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace mathwhiz.Data {
+namespace mathwhiz.Data
+{
     internal static class UsersRepository
     {
         internal static async Task<List<User>> GetUsersAsync()
@@ -11,6 +12,27 @@ namespace mathwhiz.Data {
             using (var db = new AppDBContext())
             {
                 return await db.Users.ToListAsync();
+            }
+        }
+
+        internal static async Task<List<UpdateUserDTO>> GetUsersAsync(string query)
+        {
+            using (var db = new AppDBContext())
+            {
+                query = query.ToLower();
+
+                return await db.Users
+                    .Where(u => u.username.ToLower().Contains(query) ||
+                                u.display_name.ToLower().Contains(query))
+                    .Take(10)
+                    .Select(u => new UpdateUserDTO
+                    {
+                        user_Id = u.userID,
+                        username = u.username,
+                        display_Name = u.display_name,
+                        Bio = u.user_bio
+                    })
+                    .ToListAsync();
             }
         }
 
@@ -26,7 +48,7 @@ namespace mathwhiz.Data {
         {
             using (var db = new AppDBContext())
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.display_name == username && u.password == password);
+                var user = await db.Users.FirstOrDefaultAsync(u => u.username == username && u.password == password);
                 return user;
             }
         }
@@ -47,13 +69,20 @@ namespace mathwhiz.Data {
             }
         }
 
-        internal static async Task<bool> UpdateUserAsync(User userToUpdate)
+        internal static async Task<bool> UpdateUserAsync(UpdateUserDTO userToUpdate)
         {
             using (var db = new AppDBContext())
             {
                 try
                 {
-                    db.Users.Update(userToUpdate);
+                    User user = await GetUserByIdAsync(userToUpdate.user_Id);
+                    if (user == null)
+                    {
+                        return false;
+                    }
+                    user.display_name = userToUpdate.display_Name;
+                    user.user_bio = userToUpdate.Bio;
+                    db.Users.Update(user);
                     return await db.SaveChangesAsync() >= 1;
                 }
                 catch (Exception)
@@ -83,7 +112,7 @@ namespace mathwhiz.Data {
                 }
             }
         }
-        internal static async Task<bool> UpdateUserProfilePictureAsync(int userId,string filePath)
+        internal static async Task<bool> UpdateUserProfilePictureAsync(int userId, string filePath)
         {
             using (var db = new AppDBContext())
             {
@@ -104,6 +133,84 @@ namespace mathwhiz.Data {
                 }
             }
         }
-        
+
+        internal static async Task<bool> UpdateUserBackgroundPictureAsync(int userId, string filePath)
+        {
+            using (var db = new AppDBContext())
+            {
+                try
+                {
+                    User userToUpdate = await GetUserByIdAsync(userId);
+                    if (userToUpdate == null)
+                    {
+                        return false; // User does not exist
+                    }
+                    userToUpdate.profile_background = filePath;
+                    db.Users.Update(userToUpdate);
+                    return await db.SaveChangesAsync() >= 1;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+
+        }
+        internal static async Task<bool> UploadUserAsset(UserSavedAsset userSavedAsset)
+        {
+            using (var db = new AppDBContext())
+            {
+                try
+                {
+                    await db.SavedAssets.AddAsync(userSavedAsset);
+                    return await db.SaveChangesAsync() >= 1;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        internal static async Task<List<UserSavedAsset>> GetUserAssetsAsync(int userId)
+        {
+            using (var db = new AppDBContext())
+            {
+                return await db.SavedAssets
+                    .Where(asset => asset.OwnerUserID == userId)
+                    .OrderByDescending(asset => asset.CreatedAt)
+                    .ToListAsync();
+            }
+        }
+
+        internal static async Task<UserSavedAsset?> GetUserAssetByIdAsync(int assetId)
+        {
+            using (var db = new AppDBContext())
+            {
+                return await db.SavedAssets
+                    .FirstOrDefaultAsync(asset => asset.AssetId == assetId);
+            }
+        }
+
+        internal static async Task<bool> DeleteUserAssetAsync(int assetId)
+        {
+            using (var db = new AppDBContext())
+            {
+                try
+                {
+                    UserSavedAsset userToDelete = await GetUserAssetByIdAsync(assetId);
+                    if (userToDelete != null)
+                    {
+                        db.SavedAssets.Remove(userToDelete);
+                        return await db.SaveChangesAsync() >= 1;
+                    }
+                    return false;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
     }
 }

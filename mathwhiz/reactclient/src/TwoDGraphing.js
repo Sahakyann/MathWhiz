@@ -3,6 +3,7 @@ import Plot from "react-plotly.js";
 import { evaluate } from "mathjs";
 import { addStyles, EditableMathField } from "react-mathquill";
 import "./Styles-CSS/2dGraphing.css";
+import { useNavigate } from "react-router-dom";
 
 addStyles();
 
@@ -13,6 +14,7 @@ const GraphingCalculator = () => {
     const [xRange, setXRange] = useState([-10, 10]);
     const [yRange, setYRange] = useState([-10, 10]);
     const plotRef = useRef(null);
+    const navigate = useNavigate();
 
     const [isPanning, setIsPanning] = useState(false);
     const [lastMousePos, setLastMousePos] = useState(null);
@@ -40,7 +42,9 @@ const GraphingCalculator = () => {
 
     const plotGraph = () => {
         try {
-            let xValues = Array.from({ length: 200 }, (_, i) => xRange[0] + ((xRange[1] - xRange[0]) * i / 200));
+            const resolution = 1000;
+            let step = (xRange[1] - xRange[0]) / resolution;
+            let xValues = Array.from({ length: resolution }, (_, i) => xRange[0] + i * step);
 
             let graphData = expressions.map((expr, index) => {
                 try {
@@ -86,25 +90,25 @@ const GraphingCalculator = () => {
     const handlePanStart = (event) => {
         setIsPanning(true);
         setLastMousePos({ x: event.clientX, y: event.clientY });
-      };
-      
-      const handlePanMove = (event) => {
+    };
+
+    const handlePanMove = (event) => {
         if (!isPanning || !lastMousePos) return;
-    
+
         const dx = (event.clientX - lastMousePos.x) * (xRange[1] - xRange[0]) / 2000;
         const dy = (event.clientY - lastMousePos.y) * (yRange[1] - yRange[0]) / 2000;
-    
+
         setXRange((prevXRange) => [prevXRange[0] - dx, prevXRange[1] - dx]);
         setYRange((prevYRange) => [prevYRange[0] + dy, prevYRange[1] + dy]);
-    
+
         setLastMousePos({ x: event.clientX, y: event.clientY });
         plotGraph();
-      };
-      
-      const handlePanEnd = () => {
+    };
+
+    const handlePanEnd = () => {
         setIsPanning(false);
         setLastMousePos(null);
-      };
+    };
 
     useEffect(() => {
         document.addEventListener("wheel", handleWheelZoom, { passive: false });
@@ -115,13 +119,13 @@ const GraphingCalculator = () => {
         document.addEventListener("mousedown", handlePanStart);
         document.addEventListener("mousemove", handlePanMove);
         document.addEventListener("mouseup", handlePanEnd);
-      
+
         return () => {
-          document.removeEventListener("mousedown", handlePanStart);
-          document.removeEventListener("mousemove", handlePanMove);
-          document.removeEventListener("mouseup", handlePanEnd);
+            document.removeEventListener("mousedown", handlePanStart);
+            document.removeEventListener("mousemove", handlePanMove);
+            document.removeEventListener("mouseup", handlePanEnd);
         };
-      }, [isPanning, lastMousePos, xRange, yRange]);
+    }, [isPanning, lastMousePos, xRange, yRange]);
 
 
     return (
@@ -146,10 +150,12 @@ const GraphingCalculator = () => {
                     </div>
                 ))}
                 <button className="add-button" onClick={() => setExpressions([...expressions, ""])}>Add Function</button>
-
+                <button className="transparent-button" onClick={() => navigate('/toolsHub')}>
+                    Back to Tools
+                </button>
             </div>
 
-    
+
             <div className="plot-area" ref={plotRef}>
                 <Plot
                     data={data}

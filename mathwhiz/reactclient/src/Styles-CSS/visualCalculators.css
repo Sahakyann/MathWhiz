@@ -8,7 +8,8 @@
 
 .sidebar-visualizer {
     font-family: 'Inter';
-    width: 30%;
+    flex: 0 0 30%;
+
     min-width: 300px; 
     background: #1e1e1e;
     color: white;
@@ -44,9 +45,7 @@ button:disabled {
     background: gray;
 }
 
-button:hover:not(:disabled) {
-    background: #0056b3;
-}
+
 
 
 .visualizer {
@@ -57,11 +56,12 @@ button:hover:not(:disabled) {
     background: black;
     position: relative;
     overflow: hidden;
+    
 }
 
 .visualizer video {
-    max-width: 95%;
-    max-height: 95%;
+    max-width:95%;
+    max-height: 100%;
     object-fit: contain; 
 }
 
@@ -72,7 +72,7 @@ button:hover:not(:disabled) {
     text-align: center;
 }
 
-.linear-transformation-container {
+.side-input-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -214,3 +214,91 @@ button:hover:not(:disabled) {
     font-size: 16px;
 }
 
+.visualization-controls {
+    position: absolute;
+    top: 90px;
+    right: 120px;
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+}
+
+
+.visualization-controls button {
+    transition: all 0.2s ease;
+    transform: scale(1);
+}
+
+.visualization-controls button.active {
+    background-color: #002d5e;
+    transform: scale(0.98);
+}
+
+.visualization-controls button:hover {
+    background-color: #0053ac;
+}
+
+.filename-prompt-slide-up {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.493);
+    border-top: 2px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+}
+
+.filename-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+}
+
+.filename-box input {
+    padding: 8px;
+    font-size: 1rem;
+}
+
+.filename-box button {
+    padding: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.cancel-button {
+    background: #636363;
+}
+
+.cancel-button:hover {
+    background: #636363;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.slide-down {
+    animation: slideDownDisappear 0.2s ease-in forwards;
+  }
+  
+  @keyframes slideDownDisappear {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }

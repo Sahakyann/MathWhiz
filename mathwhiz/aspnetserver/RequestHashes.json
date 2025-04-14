@@ -132,5 +132,16 @@
   "sin(x),-2,2,-2,2,\\sin\\left(x\\right),0,5": "513f482655aa5c4c27c6cbdd28adf7",
   "x^2,-2,2,-2,2,x^2,1.5,0": "fd85ada4801697ac4e3730736883e7",
   "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 3\n1, 1": "5337e4584c26a28d0baab8aa7fa4b6",
-  "-x^2+1,-2,2,-2,2,-x^2+1,0.8,0": "a5095729ae6f930fdd8aad1616675d"
+  "-x^2+1,-2,2,-2,2,-x^2+1,0.8,0": "a5095729ae6f930fdd8aad1616675d",
+  "-x^2+3,-2,2,-2,2,-x^2+3,1,9": "2bf27feb185ed9c8f011dae5d7234a",
+  "-x^2+3,-2,2,-2,2,-x^2+3,10,9": "56865236657c392ebeee9620032fee",
+  "sin(x^2),-2,2,-2,2,\\sin\\left(x^2\\right),10,9": "37e96668aaa4839d5dcf6f026796a3",
+  "sin(x^2),-2,2,-2,2,\\sin\\left(x^2\\right),1,9": "4692d907aca5b9cbb903d76c6aaf6a",
+  "sin(x^2),-2,2,-2,2,1,1,0.05,-1,1,\\sin\\left(x^2\\right)": "d0347cd4161f19642ea3af60b115a5",
+  "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 3\n4, 2": "e6da16149ae85237ddebbc24d00f6a",
+  "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 3\n3, 1": "d0e9fc60c733c22656694f1fa1cb1a",
+  "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 2": "e2ba5c5c78eb89f0e3d9de64a53a6a",
+  "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 1": "e9be930b554b2aeadde25b09d364f3",
+  "Matrix:\n-1, -1\n-1, 1\nVectors:\n2, 3\n1, 1": "7d931cfceaa529dffa8eb756bf43bd",
+  "cos(x) *  x,-2,2,-2,2,1,1,0.05,-1,1,\\cos\\left(x\\right)\\cdot x": "3296dff0afe121e19678712c283cf8"
 }

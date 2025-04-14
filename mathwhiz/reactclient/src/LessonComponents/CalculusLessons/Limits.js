@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "katex/dist/katex.min.css";
 import { addStyles, EditableMathField } from "react-mathquill";
-import { submitFunctionLimit } from "../VisualCalculators";
-import { parseLatex } from "../LatexParsing/latexParser";
+import { submitFunctionLimit } from "../../VisualCalculators";
+import { parseLatex } from "../../Archived/LatexParsing/latexParser";
 import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
-import '../Styles-CSS/lessons.css';
-import QuizComponent from "./QuizComponent";
+import '../../Styles-CSS/lessons.css';
+import QuizComponent from "../QuizComponent";
 addStyles();
 
 
@@ -352,7 +352,12 @@ export default function Limits() {
             </div>
 
             <div className="latex-container">
-                <h1 id="limits-intro">Limit of a Function</h1>
+                
+                <img
+                    src={"/LimitThumbnail_ManimCE_v0.19.0.png"}
+                    alt="Media Toggle"
+                    style={{ maxWidth: "600px", display: "block", margin: "1rem auto" }}
+                />
                 <p>
                     The idea of a limit is nothing new. Think of the word <strong>"approaching"</strong>,
                     and if you know its meaning, then you already understand what a limit is. The rest of the concept is just

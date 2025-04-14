@@ -9,7 +9,7 @@ namespace mathwhiz.Data
     {
         internal static async Task<(string output, string error,string fileName)> RunPythonScript(
             ManimRequest manimRequest, string scriptPath,
-            string pythonScriptName,ManimRequest.RequestType type,string fileExtension, string? pythonClassName = null)
+            string pythonScriptName,ManimRequest.RequestType type,string fileExtension, string outputDirectory, int userId, string? pythonClassName = null)
         {
             if (manimRequest == null || scriptPath == null)
             {
@@ -38,6 +38,17 @@ namespace mathwhiz.Data
                     string output = await process.StandardOutput.ReadToEndAsync();
                     string error = await process.StandardError.ReadToEndAsync();
                     await process.WaitForExitAsync();
+
+                    string fullPath = Path.Combine(outputDirectory, $"{fileName}.{fileExtension}");
+
+                    if (File.Exists(fullPath))
+                    {
+                        VisualizationCache.Store(userId, fullPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[Warning] File not found: {fullPath}. Skipping cache.");
+                    }
 
                     return (output, error,$"{fileName}.{fileExtension}");
                 }
