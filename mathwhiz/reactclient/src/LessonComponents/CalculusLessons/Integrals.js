@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "katex/dist/katex.min.css";
 import { addStyles, EditableMathField } from "react-mathquill";
-import { submitFunctionIntegral } from "../../VisualCalculators";
+import { submitFunctionIntegral } from "../../SubmitHandlers/SubmitFunctions";
 
 addStyles();
 

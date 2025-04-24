@@ -23,6 +23,7 @@ namespace mathwhiz.Data
                     username = $"User{i}",
                     password = $"123",
                     display_name = $"Display Name{i}",
+                    email = $"example_email@mathwhiz.com",
                     user_bio = $"My name is Giorgio, but everybody calls me User{i}"
                 };
             }

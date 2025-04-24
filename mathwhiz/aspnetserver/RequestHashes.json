@@ -143,5 +143,17 @@
   "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 2": "e2ba5c5c78eb89f0e3d9de64a53a6a",
   "Matrix:\n0, -1\n-1, 0\nVectors:\n2, 1": "e9be930b554b2aeadde25b09d364f3",
   "Matrix:\n-1, -1\n-1, 1\nVectors:\n2, 3\n1, 1": "7d931cfceaa529dffa8eb756bf43bd",
-  "cos(x) *  x,-2,2,-2,2,1,1,0.05,-1,1,\\cos\\left(x\\right)\\cdot x": "3296dff0afe121e19678712c283cf8"
+  "cos(x) *  x,-2,2,-2,2,1,1,0.05,-1,1,\\cos\\left(x\\right)\\cdot x": "3296dff0afe121e19678712c283cf8",
+  "-x^2+1,-6,2,-2,2,1,1,0.05,-1,1,-x^2+1": "885742f5fce52fbe11c9a99bbe6274",
+  "-x^2+1,-6,2,-10,2,1,1,0.05,-1,1,-x^2+1": "658af58c11d0a6a3eb2d0f9d34afa6",
+  "-x^2+1,-6,-10,-10,2,1,1,0.05,-1,1,-x^2+1": "1201c79748ee8a1d36c435ff563909",
+  "-x^2+1,-10,1,6,2,1,1,0.05,-1,1,-x^2+1": "1a4ebeafe0d1309444f4df11fb5632",
+  "-x^2+1,10,1,6,2,1,1,0.05,-1,1,-x^2+1": "389523622b4bed0cf34af7ed0cf30c",
+  "-x^2+1,-5,5,-6,7,1,1,0.05,-1,1,-x^2+1": "c50f7726bf9e95fe4ba09ab42e8c11",
+  "tan(x),-5,5,-6,7,1,1,0.05,-1,1,\\tan\\left(x\\right)": "3482d8ed8fa32e00fd93e9a31b8b24",
+  "sin(x^(sqrt(x))),-2,2,-2,2,1,1,0.05,-1,1,\\sin\\left(x^{sqrt\\left(x\\right)}\\right)": "4baf942fd68e74e2fb6e41402c502d",
+  "sin(x^3),-2,2,-2,2,1,1,0.05,-1,1,\\sin\\left(x^3\\right)": "48ab64c11f81d85cb7f63177d90aed",
+  "(1/x),-2,2,-2,2,1,1,0.05,-1,1,\\frac{1}{x}": "b771d5931d8f542db44afe26c7dbe9",
+  "cos(x) * sin(x),-2,2,-2,2,1,1,0.05,2,3,\\cos\\left(x\\right)\\cdot\\sin\\left(x\\right)": "7c6d797c029d36de4a18cd22ef93c8",
+  "cos(x) * sin(x),-2,2,-2,2,1,1,0.05,-1.5,1,\\cos\\left(x\\right)\\cdot\\sin\\left(x\\right)": "fd71cd8792e67e8435c90a9eb15595"
 }

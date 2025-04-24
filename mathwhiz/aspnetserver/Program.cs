@@ -369,7 +369,7 @@ app.MapPost("/api/get-taylor-series/{userId}", async (TaylorSeriesRequest reques
 });
 
 
-app.MapPost("/api/login", async (HttpContext context, User userToCheck) =>
+app.MapPost("/api/login", async (HttpContext context, LoginDTO userToCheck) =>
 {
     var user = await UsersRepository.UserExistsAsync(userToCheck.username, userToCheck.password);
 
@@ -472,7 +472,7 @@ app.MapGet("/api/validate-token", async (HttpContext context) =>
     return Results.Ok(new { isValid = true, username, userID });
 });
 
-app.MapPost("/api/register", async (User userToCheck) => {
+app.MapPost("/api/register", async (LoginDTO userToCheck) => {
     var user = await UsersRepository.UserExistsAsync(userToCheck.username, userToCheck.password);
     bool success = false;
     if (user == null)

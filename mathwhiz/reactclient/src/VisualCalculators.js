@@ -4,9 +4,32 @@ import { useNavigate } from "react-router-dom";
 import { addStyles, EditableMathField } from "react-mathquill";
 import "./Styles-CSS/visualCalculators.css";
 import { useParams } from "react-router-dom";
+import Plot from "react-plotly.js";
+import { evaluate, compile, derivative } from "mathjs";
+import { parseLatexToMath, fixMultiplication } from "./LatexParserNew"
+
+import { IntegralInput } from "./Forms/IntegralInput";
+import { DerivativeInput } from "./Forms/DerivativeInput";
+import { GradientDescentInput } from "./Forms/GradientDescentInput";
+import { LinearTransformationInput } from "./Forms/LinearTransformationInput";
+import { NewtonsMethodInput } from "./Forms/NewtonsMethodInput";
+import { TaylorSeriesInput } from "./Forms/TaylorSeriesInput";
+import { VisualizationSelector, SettingsSelector } from "./Forms/VisualizationSelector";
+import {
+    submitFunctionDerivative,
+    submitFunctionIntegral,
+    submitFunctionLimit,
+    submitFunctionLinearTransformation,
+    submitFunctionNewtonsMethod,
+    submitFunctionTaylorSeries,
+    submitEigenvalueVisualizer
+} from './SubmitHandlers/SubmitFunctions.js';
+
 addStyles();
 
 export default function VisualCalculators() {
+
+
     const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState("integral");
     const [input, setInput] = useState("-x^2+1");
@@ -26,6 +49,15 @@ export default function VisualCalculators() {
     const [matrixB, setMatrixB] = useState("-1");
     const [matrixC, setMatrixC] = useState("-1");
     const [matrixD, setMatrixD] = useState("0");
+
+    const [ThreeDinput, setThreeDinput] = useState("x^2 + y^2");
+    const [learningRate, setLearningRate] = useState("0.9");
+    const [initialX, setInitialX] = useState("13");
+    const [initialY, setInitialY] = useState("2");
+    const [iterations, setIterations] = useState("10");
+    const [gradientDescentData, setGradientDescentData] = useState(null);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
 
 
     const [loading, setLoading] = useState(false);
@@ -47,6 +79,82 @@ export default function VisualCalculators() {
     const [showNamePrompt, setShowNamePrompt] = useState(false);
     const [customFileName, setCustomFileName] = useState("");
 
+    const [showSettings, setShowSettings] = useState(false);
+    const [aspectRatio, setAspectRatio] = useState("16:9");
+    const [backgroundColor, setBackgroundColor] = useState("#111111");
+
+
+
+
+    useEffect(() => {
+        if (isAnimating && gradientDescentData) {
+            const interval = setInterval(() => {
+                setCurrentStep(prev => {
+                    if (prev < gradientDescentData.xs.length - 1) {
+                        return prev + 1;
+                    } else {
+                        clearInterval(interval);
+                        setIsAnimating(false);
+                        return prev;
+                    }
+                });
+            }, 500);
+
+            return () => clearInterval(interval);
+        }
+    }, [isAnimating, gradientDescentData]);
+
+    function generateGradientDescentPlot() {
+        try {
+            let processedInput = parseLatexToMath(ThreeDinput);
+            processedInput = fixMultiplication(processedInput);
+            console.log("Converted Function Multiplication:", processedInput)
+            const parsedFunction = compile(processedInput);
+
+
+            let x = parseFloat(initialX);
+            let y = parseFloat(initialY);
+            const learning = parseFloat(learningRate);
+            const iters = parseInt(iterations);
+
+            const xs = [x];
+            const ys = [y];
+            const zs = [parsedFunction.evaluate({ x, y })];
+
+            const dfdx = derivative(processedInput, 'x');
+            const dfdy = derivative(processedInput, 'y');
+
+            const dfdxCompiled = dfdx.compile();
+            const dfdyCompiled = dfdy.compile();
+
+            for (let i = 0; i < iters; i++) {
+                const gradX = dfdxCompiled.evaluate({ x, y });
+                const gradY = dfdyCompiled.evaluate({ x, y });
+
+                x = x - learning * gradX;
+                y = y - learning * gradY;
+
+                xs.push(x);
+                ys.push(y);
+                zs.push(parsedFunction.evaluate({ x, y }));
+            }
+
+            setGradientDescentData({
+                xs,
+                ys,
+                zs,
+                functionPlot: ThreeDinput,
+                compiledSurfaceFunction: parsedFunction,
+            });
+
+        } catch (error) {
+            console.error(error);
+            alert("Failed to generate 3D Gradient Descent. Please check your input function.");
+        }
+    }
+
+
+
     const handleSubmit = () => {
         if (selectedType === "limit") {
             submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoading, setVideoUrl, videoUrl);
@@ -62,7 +170,9 @@ export default function VisualCalculators() {
             submitFunctionTaylorSeries(input, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl, userId);
         } else if (selectedType === "newtons-method") {
             submitFunctionNewtonsMethod(input, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl, userId);
-
+        } else if (selectedType === "gradient-descent") {
+            setVideoUrl(null);
+            generateGradientDescentPlot();
         }
     };
 
@@ -87,7 +197,9 @@ export default function VisualCalculators() {
     return (
 
         <div className="visualization-container">
+
             <div className="visualization-controls">
+
                 <button
                     className={showVideo ? "active" : ""}
                     onClick={() => { setShowVideo(true); setShowExplanation(false); }}
@@ -102,88 +214,220 @@ export default function VisualCalculators() {
                 </button>
                 <button
                     onClick={() => setShowNamePrompt(true)}
-                    disabled={!videoUrl || !showVideo}
+                    disabled={!videoUrl || !showVideo || selectedType === "gradient-descent"}
                 >
                     Save to Profile
                 </button>
                 <button
                     onClick={downloadVideo}
-                    disabled={!videoUrl || !showVideo}
+                    disabled={!videoUrl || !showVideo || selectedType === "gradient-descent"}
                 >
                     Download
                 </button>
+                {selectedType === "gradient-descent" && <button
+                    onClick={() => {
+                        setCurrentStep(0);
+                        setIsAnimating(true);
+                    }}
+                    disabled={!gradientDescentData || isAnimating || selectedType !== "gradient-descent"}
+                >
+                    Animate Ball
+                </button>}
             </div>
+
             <div className="sidebar-visualizer">
-                <VisualizationSelector selectedType={selectedType} setSelectedType={setSelectedType} />
 
-                {selectedType === "integral" && (
-                    <IntegralInput
-                        input={input} setInput={setInput}
-                        igFrom={igFrom} setIgFrom={setIgFrom}
-                        igTo={igTo} setIgTo={setIgTo}
-                        xStep={xStep} setXStep={setXStep}
-                        yStep={yStep} setYStep={setYStep}
-                        integral_dx={integral_dx} setDX={setDX}
-                        xMin={xMin} setXMin={setXMin}
-                        xMax={xMax} setXMax={setXMax}
-                        yMin={yMin} setYMin={setYMin}
-                        yMax={yMax} setYMax={setYMax}
+
+                {showSettings ? (
+                    <div className="settings-panel">
+                    <SettingsSelector
+                        aspectRatio={aspectRatio}
+                        backgroundColor={backgroundColor}
+                        setAspectRatio={setAspectRatio}
+                        setBackgroundColor={setBackgroundColor}
+                        setShowSettings={setShowSettings}
                     />
-                )}
+                    </div>
+                ) : (
+                    <>
+                        <button
+                            className="settings-toggle-button"
+                            onClick={() => setShowSettings(true)}
+                            style={{ alignSelf: "flex-end", marginBottom: "10px" }}
+                        >
+                            ⚙️ Settings
+                        </button>
+                        <VisualizationSelector selectedType={selectedType} setSelectedType={setSelectedType} setVideoUrl={setVideoUrl} />
 
-                {selectedType === "derivative" && (
-                    <DerivativeInput
-                        input={input} setInput={setInput}
-                        derivFrom={derivFrom} setDerivFrom={setDerivFrom}
-                        derivTo={derivTo} setDerivTo={setDerivTo}
-                    />
-                )}
+                        {selectedType === "integral" && (
+                            <IntegralInput
+                                input={input} setInput={setInput}
+                                igFrom={igFrom} setIgFrom={setIgFrom}
+                                igTo={igTo} setIgTo={setIgTo}
+                                xStep={xStep} setXStep={setXStep}
+                                yStep={yStep} setYStep={setYStep}
+                                integral_dx={integral_dx} setDX={setDX}
+                                xMin={xMin} setXMin={setXMin}
+                                xMax={xMax} setXMax={setXMax}
+                                yMin={yMin} setYMin={setYMin}
+                                yMax={yMax} setYMax={setYMax}
+                            />
+                        )}
 
-                {(selectedType === "linear-transformation" || selectedType === "eigenvector-visualizer") && (
-                    <LinearTransformationInput
-                        matrixA={matrixA} setMatrixA={setMatrixA}
-                        matrixB={matrixB} setMatrixB={setMatrixB}
-                        matrixC={matrixC} setMatrixC={setMatrixC}
-                        matrixD={matrixD} setMatrixD={setMatrixD}
-                        vectors={vectors} setVectors={setVectors}
-                    />
-                )}
+                        {selectedType === "derivative" && (
+                            <DerivativeInput
+                                input={input} setInput={setInput}
+                                derivFrom={derivFrom} setDerivFrom={setDerivFrom}
+                                derivTo={derivTo} setDerivTo={setDerivTo}
+                            />
+                        )}
 
-                {selectedType === "taylor-series" && (
-                    <TaylorSeriesInput
-                        input={input} setInput={setInput}
-                        expansionPoint={expansionPoint} setExpansionPoint={setExpansionPoint}
-                        degree={degree} setDegree={setDegree}
-                        xMin={xMin} setXMin={setXMin}
-                        xMax={xMax} setXMax={setXMax}
-                    />
-                )}
+                        {(selectedType === "linear-transformation" || selectedType === "eigenvector-visualizer") && (
+                            <LinearTransformationInput
+                                matrixA={matrixA} setMatrixA={setMatrixA}
+                                matrixB={matrixB} setMatrixB={setMatrixB}
+                                matrixC={matrixC} setMatrixC={setMatrixC}
+                                matrixD={matrixD} setMatrixD={setMatrixD}
+                                vectors={vectors} setVectors={setVectors}
+                            />
+                        )}
 
-                {selectedType === "newtons-method" && (
-                    <NewtonsMethodInput
-                        input={input} setInput={setInput}
-                        initialGuess={initialGuess} setInitialGuess={setInitialGuess}
-                        maxIterations={maxIterations} setMaxIterations={setMaxIterations}
-                    />
-                )}
+                        {selectedType === "taylor-series" && (
+                            <TaylorSeriesInput
+                                input={input} setInput={setInput}
+                                expansionPoint={expansionPoint} setExpansionPoint={setExpansionPoint}
+                                degree={degree} setDegree={setDegree}
+                                xMin={xMin} setXMin={setXMin}
+                                xMax={xMax} setXMax={setXMax}
+                            />
+                        )}
 
-                <div>
-                    <button onClick={handleSubmit} disabled={loading || !showVideo}>
-                        {loading ? "Processing..." : "Generate"}
-                    </button>
-                </div>
-                <button className="transparent-button" onClick={() => navigate(`/toolsHub/${userId}`)}>
-                    Back to Tools
-                </button>
+                        {selectedType === "newtons-method" && (
+                            <NewtonsMethodInput
+                                input={input} setInput={setInput}
+                                initialGuess={initialGuess} setInitialGuess={setInitialGuess}
+                                maxIterations={maxIterations} setMaxIterations={setMaxIterations}
+                            />
+                        )}
+
+                        {selectedType === "gradient-descent" && (
+                            <GradientDescentInput
+                                ThreeDinput={ThreeDinput} setThreeDInput={setThreeDinput}
+                                learningRate={learningRate} setLearningRate={setLearningRate}
+                                initialX={initialX} setInitialX={setInitialX}
+                                initialY={initialY} setInitialY={setInitialY}
+                                iterations={iterations} setIterations={setIterations}
+                            />
+                        )}
+
+                        <div>
+                            <button onClick={handleSubmit} disabled={loading || !showVideo}>
+                                {loading ? "Processing..." : "Generate"}
+                            </button>
+                        </div>
+                        <button className="transparent-button" onClick={() => navigate(`/toolsHub/${userId}`)}>
+                            Back to Tools
+                        </button>
+                    </>)}
             </div>
 
             <div className="visualizer">
+
                 {showVideo && videoUrl && (
                     <video width="100%" height="100%" controls autoPlay muted>
                         <source src={videoUrl} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 )}
+
+                {showVideo && selectedType === "gradient-descent" && gradientDescentData && (() => {
+                    const surfaceFunc = gradientDescentData.compiledSurfaceFunction;
+
+
+                    const span = 40;
+
+                    const xMin = -span;
+                    const xMax = span;
+                    const yMin = -span;
+                    const yMax = span;
+
+                    const xValues = Array.from({ length: 100 }, (_, i) =>
+                        xMin + (i * (xMax - xMin)) / 99
+                    );
+
+                    const yValues = Array.from({ length: 100 }, (_, i) =>
+                        yMin + (i * (yMax - yMin)) / 99
+                    );
+
+                    const zSurface = yValues.map(y =>
+                        xValues.map(x => surfaceFunc.evaluate({ x, y }))
+                    );
+
+                    let zMin = Infinity;
+                    let zMax = -Infinity;
+
+                    for (const row of zSurface) {
+                        for (const z of row) {
+                            if (z < zMin) zMin = z;
+                            if (z > zMax) zMax = z;
+                        }
+                    }
+
+                    zMax = Math.min(zMax, 200);
+                    zMin = Math.max(zMin, -200);
+
+                    return (
+                        <Plot
+                            data={[
+                                {
+                                    type: "surface",
+                                    x: xValues,
+                                    y: yValues,
+                                    z: zSurface,
+                                    colorscale: "Viridis",
+                                    opacity: 0.65,
+                                },
+                                {
+                                    type: "scatter3d",
+                                    mode: "lines+markers",
+                                    x: gradientDescentData.xs,
+                                    y: gradientDescentData.ys,
+                                    z: gradientDescentData.zs,
+                                    marker: { color: "red", size: 4 },
+                                    line: { color: "red", width: 4 },
+                                    name: "Descent Path"
+                                },
+                                {
+                                    type: "scatter3d",
+                                    mode: "markers",
+                                    x: [gradientDescentData.xs[currentStep]],
+                                    y: [gradientDescentData.ys[currentStep]],
+                                    z: [gradientDescentData.zs[currentStep]],
+                                    marker: { color: "yellow", size: 6 },
+                                    name: "Ball",
+                                }
+                            ]}
+                            layout={{
+                                paper_bgcolor: "#111111",
+                                plot_bgcolor: "#111111",
+                                font: { color: "#FFFFFF" },
+                                width: 1920,
+                                height: 1080,
+                                title: {
+                                    text: "Gradient Descent on Surface",
+                                    font: { color: "#FFFFFF" }
+                                },
+                                scene: {
+                                    xaxis: { title: "x", backgroundcolor: "#111111", gridcolor: "#444444", zerolinecolor: "#888888" },
+                                    yaxis: { title: "y", backgroundcolor: "#111111", gridcolor: "#444444", zerolinecolor: "#888888" },
+                                    zaxis: { title: "f(x, y)", backgroundcolor: "#111111", gridcolor: "#444444", zerolinecolor: "#888888", range: [zMin, zMax], },
+                                }
+                            }}
+                        />
+                    );
+                })()}
+
+
 
                 {showExplanation && (
                     <div>
@@ -194,6 +438,7 @@ export default function VisualCalculators() {
                             {selectedType === "taylor-series" && "Taylor Series"}
                             {selectedType === "newtons-method" && "Newton’s Method"}
                             {selectedType === "eigenvector-visualizer" && "Eigenvectors"}
+                            {selectedType === "gradient-descent" && "Gradient Descent Visualizer"}
                         </h3>
                         <p>
                             {selectedType === "integral" && "This visualization demonstrates the concept of definite integration by approximating the area under the curve using small rectangles (Riemann sums)."}
@@ -201,6 +446,7 @@ export default function VisualCalculators() {
                             {selectedType === "linear-transformation" && "This shows how vectors are transformed under a 2×2 matrix transformation — stretching, rotating, or flipping them in space."}
                             {selectedType === "taylor-series" && "This shows how a function can be approximated using a polynomial expansion around a point using its derivatives (Taylor Series)."}
                             {selectedType === "newtons-method" && "This shows how Newton’s Method iteratively finds roots of a function using tangent lines from an initial guess."}
+                            {selectedType === "gradient-descent" && "Shows how gradient descent iteratively minimizes a function."}
                         </p>
                     </div>
                 )}
@@ -256,408 +502,8 @@ export default function VisualCalculators() {
     );
 }
 
-export function VisualizationSelector({ selectedType, setSelectedType }) {
-    return (
-        <div>
-            <h3>Select Visualization</h3>
-            <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                <option value="integral">Integral Visualization</option>
-                <option value="derivative">Derivative Visualization</option>
-                <option value="linear-transformation">Linear Transformation</option>
-                <option value="eigenvector-visualizer">Eigenvectors</option>
-                <option value="taylor-series">Taylor Series Approximation</option>
-                <option value="newtons-method">Newton's Method</option>
-            </select>
-        </div>
-    );
-}
-
-export function IntegralInput({
-    input, setInput,
-    igFrom, setIgFrom,
-    igTo, setIgTo,
-    xStep, setXStep,
-    yStep, setYStep,
-    integral_dx, setDX,
-    xMin, setXMin,
-    xMax, setXMax,
-    yMin, setYMin,
-    yMax, setYMax
-}) {
-    return (
-        <div className="side-input-container">
-            <h2>Integral Visualization</h2>
-
-            <div className="integral-function-container">
-                <div className="integral-group">
-                    <input type="number" value={igTo} onChange={(e) => setIgTo(e.target.value)} className="integral-upper" />
-                    <img src="/integral_symbol_transparent.png" alt="Integral Symbol" className="integral-symbol" />
-                    <input type="number" value={igFrom} onChange={(e) => setIgFrom(e.target.value)} className="integral-lower" />
-                </div>
-                <div className="function-input">
-                    <EditableMathField
-                        latex={input}
-                        onChange={(mathField) => setInput(mathField.latex())}
-                        className="math-input"
-                    />
-                </div>
-            </div>
 
 
-            <h3>Function Parameters</h3>
-            <div className="range-inputs">
-                <label>X Axis From:</label>
-                <input type="number" value={xMin} onChange={(e) => setXMin(e.target.value)} />
-
-                <label>X Axis To:</label>
-                <input type="number" value={xMax} onChange={(e) => setXMax(e.target.value)} />
-
-                <label>Y Axis From:</label>
-                <input type="number" value={yMin} onChange={(e) => setYMin(e.target.value)} />
-
-                <label>Y Axis To:</label>
-                <input type="number" value={yMax} onChange={(e) => setYMax(e.target.value)} />
-
-                <label>X Step Size:</label>
-                <input type="number" value={xStep} onChange={(e) => setXStep(e.target.value)} />
-
-                <label>Y Step Size:</label>
-                <input type="number" value={yStep} onChange={(e) => setYStep(e.target.value)} />
-
-                <label>Integral dx:</label>
-                <input type="number" value={integral_dx} onChange={(e) => setDX(e.target.value)} />
-            </div>
-        </div>
-    );
-}
-
-export function DerivativeInput({ input, setInput, derivFrom, setDerivFrom, derivTo, setDerivTo }) {
-    return (
-        <div className="side-input-container">
-            <h2>Derivative Visualization</h2>
-
-            <div className="function-input">
-                <EditableMathField
-                    latex={input}
-                    onChange={(mathField) => setInput(mathField.latex())}
-                    className="math-input"
-                />
-            </div>
-
-
-            <h3>Function Parameters</h3>
-            <div className="range-inputs">
-                <label>Derivative From:</label>
-                <input type="number" value={derivFrom} onChange={(e) => setDerivFrom(e.target.value)} />
-
-                <label>Derivative To:</label>
-                <input type="number" value={derivTo} onChange={(e) => setDerivTo(e.target.value)} />
-            </div>
-        </div>
-    );
-}
-
-export function LinearTransformationInput({ matrixA, setMatrixA, matrixB, setMatrixB, matrixC, setMatrixC, matrixD, setMatrixD, vectors, setVectors }) {
-    const addVector = () => {
-        setVectors([...vectors, [0, 0]]);
-    };
-
-    const removeVector = (index) => {
-        setVectors(vectors.filter((_, i) => i !== index));
-    };
-
-    const updateVector = (index, axis, value) => {
-        const updatedVectors = [...vectors];
-        updatedVectors[index][axis] = parseFloat(value) || 0;
-        setVectors(updatedVectors);
-    };
-
-    return (
-        <div className="side-input-container">
-            <h2>Linear Transformation Visualization</h2>
-
-
-            <h3>Transformation Matrix</h3>
-            <div className="matrix-container">
-                <div>
-                    <input type="number" value={matrixA} onChange={(e) => setMatrixA(e.target.value)} className="matrix-input" />
-                    <input type="number" value={matrixB} onChange={(e) => setMatrixB(e.target.value)} className="matrix-input" />
-                </div>
-                <div>
-                    <input type="number" value={matrixC} onChange={(e) => setMatrixC(e.target.value)} className="matrix-input" />
-                    <input type="number" value={matrixD} onChange={(e) => setMatrixD(e.target.value)} className="matrix-input" />
-                </div>
-            </div>
-
-            <h3>Sample Vectors</h3>
-            <button onClick={addVector} className="vector-add-btn">+ Add Vector</button>
-            <div className="vector-container">
-
-                {vectors.map((vector, index) => (
-                    <div key={index} className="vector-input">
-                        <label>X</label>
-                        <input type="number" value={vector[0]} onChange={(e) => updateVector(index, 0, e.target.value)} className="vector-field" />
-                        <label>Y</label>
-                        <input type="number" value={vector[1]} onChange={(e) => updateVector(index, 1, e.target.value)} className="vector-field" />
-                        {vectors.length > 1 && <button onClick={() => removeVector(index)} className="vector-remove-btn">-</button>}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-export function TaylorSeriesInput({ input, setInput, expansionPoint, setExpansionPoint, degree, setDegree, xMin, setXMin, xMax, setXMax }) {
-    return (
-        <div className="side-input-container">
-            <h2>Taylor Series Approximation</h2>
-
-            <label>Function f(x): </label>
-            <EditableMathField
-                latex={input}
-                onChange={(mathField) => setInput(mathField.latex())}
-                className="math-input"
-            />
-            <div className="range-inputs">
-                <label>Expansion Point a:</label>
-                <input type="number" value={expansionPoint} onChange={(e) => setExpansionPoint(e.target.value)} />
-
-                <label>Maximum Degree n:</label>
-                <input type="number" value={degree} onChange={(e) => setDegree(e.target.value)} />
-
-
-                <label>X Min:</label>
-                <input type="number" value={xMin} onChange={(e) => setXMin(e.target.value)} />
-
-                <label>X Max:</label>
-                <input type="number" value={xMax} onChange={(e) => setXMax(e.target.value)} />
-            </div>
-        </div>
-    );
-}
-
-
-export function NewtonsMethodInput({ input, setInput, initialGuess, setInitialGuess, maxIterations, setMaxIterations }) {
-    return (
-        <div className="side-input-container">
-            <h2>Newton's Method Visualization</h2>
-
-            <label>Function f(x):</label>
-            <EditableMathField
-                latex={input}
-                onChange={(mathField) => setInput(mathField.latex())}
-                className="math-input"
-            />
-
-            <div className="range-inputs">
-                <label>Initial Guess:</label>
-                <input
-                    type="number"
-                    value={initialGuess}
-                    onChange={(e) => setInitialGuess(e.target.value)}
-                />
-
-                <label>Max Iterations:</label>
-                <input
-                    type="number"
-                    value={maxIterations}
-                    onChange={(e) => setMaxIterations(e.target.value)}
-                />
-            </div>
-        </div>
-    );
-}
-
-export async function submitFunctionDerivative(input, xMin, xMax, yMin, yMax, xStep, yStep, derivFrom, derivTo, setLoading, setVideoUrl, videoUrl) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            "https://localhost:7160/api/get-function-derivative",
-            { input, xMin, xMax, yMin, yMax, xStep, yStep, derivFrom, derivTo },
-            { responseType: "blob" }
-        );
-
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 100);
-    } catch (error) {
-        console.error("Error submitting function:", error);
-        alert("Failed to generate visualization. Please check your input and try again.");
-    } finally {
-        setLoading(false);
-    }
-}
-
-async function submitEigenvalueVisualizer(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            `https://localhost:7160/api/get-eigenvector-visualizer/${userId}`,
-            {
-                matrix: [
-                    [parseFloat(matrixA), parseFloat(matrixB)],
-                    [parseFloat(matrixC), parseFloat(matrixD)]
-                ],
-                vectors
-            },
-            { responseType: "blob" }
-        );
-
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 10);
-    } catch (error) {
-        console.error("Error submitting eigenvalue visualizer:", error);
-        alert("Failed to generate Eigenvalue visualizer.");
-    } finally {
-        setLoading(false);
-    }
-}
-
-export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoading, setVideoUrl, videoUrl) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            "https://localhost:7160/api/get-function-limit",
-            { function: input, xMin, xMax, yMin, yMax },
-            { responseType: "blob" }
-        );
-
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 100);
-    } catch (error) {
-        console.error("Error submitting function:", error);
-        alert("Failed to generate visualization. Please check your input and try again.");
-    } finally {
-        setLoading(false);
-    }
-}
-
-export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to, setLoading, setVideoUrl, videoUrl, userId) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            `https://localhost:7160/api/get-function-integral/${userId}`,
-            { latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to },
-            { responseType: "blob" }
-        );
-
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 10);
-    } catch (error) {
-        console.error("Error submitting function:", error);
-        alert("Failed to generate visualization. Please check your input and try again.");
-    } finally {
-        setLoading(false);
-    }
-}
-
-export async function submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            `https://localhost:7160/api/get-linear-transformation/${userId}`,
-            {
-                matrix: [
-                    [parseFloat(matrixA), parseFloat(matrixB)],
-                    [parseFloat(matrixC), parseFloat(matrixD)]
-                ],
-                vectors: vectors
-            },
-            { responseType: "blob" }
-        );
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 10);
-    } catch (error) {
-        console.error("Error submitting function:", error);
-        alert("Failed to generate visualization. Please check your input and try again.");
-    } finally {
-        setLoading(false);
-    }
-}
-
-export async function submitFunctionNewtonsMethod(latex_function, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl, userId) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            `https://localhost:7160/api/get-newtons-method/${userId}`,
-            {
-                latex_function: latex_function,
-                initialGuess: initialGuess,
-                maxIterations: maxIterations,
-                xMin: xMin,
-                xMax: xMax
-            },
-            { responseType: "blob" }
-        );
-
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 10);
-    } catch (error) {
-        console.error("Error submitting function:", error);
-        alert("Failed to generate Newton's Method visualization. Please check your input.");
-    } finally {
-        setLoading(false);
-    }
-}
-
-export async function submitFunctionTaylorSeries(latex_function, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl, userId) {
-    try {
-        setLoading(true);
-        const response = await axios.post(
-            `https://localhost:7160/api/get-taylor-series/${userId}`,
-            {
-                latex_function,
-                expansionPoint,
-                degree,
-                xMin,
-                xMax,
-            },
-            { responseType: "blob" }
-        );
-
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-        }
-
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
-        setVideoUrl(null);
-        setTimeout(() => setVideoUrl(url), 10);
-    } catch (error) {
-        console.error("Error submitting function:", error);
-        alert("Failed to generate Taylor series visualization. Please check your input and try again.");
-    } finally {
-        setLoading(false);
-    }
-}
 
 export async function saveVisualizationToProfile(userId, fileName, setLoading) {
     try {

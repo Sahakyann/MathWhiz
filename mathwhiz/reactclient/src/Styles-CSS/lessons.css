@@ -59,8 +59,12 @@
   margin: 0 auto;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
   .latex-container strong {
-    color: #a69cc2;
+    color: #b7aadb; /*#a69cc2*/
     font-weight: bold;
   }
 

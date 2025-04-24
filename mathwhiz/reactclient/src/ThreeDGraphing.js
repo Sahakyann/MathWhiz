@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Text } from "@react-three/drei";
 import * as THREE from "three";
 import './Styles-CSS/ThreeDGraphing.css';
 import { useNavigate } from "react-router-dom";
+import { evaluate, compile } from "mathjs";
+import {parseLatexToMath, fixMultiplication} from "./LatexParserNew"
 
 
 const UpdateBounds = ({ cameraRef, setXBounds, setYBounds }) => {
@@ -90,65 +92,152 @@ const GraphSurface = ({ expression, xMin, xMax, yMin, yMax }) => {
 };
 
 const GridAndAxes = ({ xMin, xMax, yMin, yMax }) => {
+    const groupRef = useRef();
+    const camera = useThree((state) => state.camera);
+
     const gridSize = Math.max(Math.abs(xMax - xMin), Math.abs(yMax - yMin));
 
-    return (
-        <>
+    const tickSpacing = 2; // You can adjust spacing (e.g., 1, 2, 5)
+    const xTicks = [];
+    const yTicks = [];
+    const zTicks = [];
 
-            <mesh position={[0, 0, 0]}>
+    
+
+    for (let x = Math.ceil(xMin / tickSpacing) * tickSpacing; x <= xMax; x += tickSpacing) {
+        xTicks.push(x);
+    }
+    for (let y = Math.ceil(yMin / tickSpacing) * tickSpacing; y <= yMax; y += tickSpacing) {
+        yTicks.push(y);
+    }
+    for (let z = Math.ceil(yMin / tickSpacing) * tickSpacing; z <= yMax; z += tickSpacing) {
+        zTicks.push(z);
+    }
+
+    useFrame(() => {
+        if (groupRef.current) {
+            const distance = camera.position.length();
+            const scaleFactor = distance * 0.03;
+            const thickness = distance * 0.003;
+            const span = distance * 0.756;
+
+            groupRef.current.children.forEach(child => {
+                if (child.userData.constantSize) {
+                    child.scale.setScalar(scaleFactor);
+
+                    if (child.userData.axis === 'x') {
+                        child.position.set(span / 2 + scaleFactor, 0, 0);
+                    } else if (child.userData.axis === 'y') {
+                        child.position.set(0, 0, span / 2 + scaleFactor);
+                    } else if (child.userData.axis === 'z') {
+                        child.position.set(0, span / 2 + scaleFactor, 0);
+                    } else if (child.userData.axis === 'xLabel') {
+                        child.position.set(span / 2 + 2 * scaleFactor, 0, 0);
+                    } else if (child.userData.axis === 'yLabel') {
+                        child.position.set(0, 0, span / 2 + 2 * scaleFactor);
+                    } else if (child.userData.axis === 'zLabel') {
+                        child.position.set(0, span / 2 + 2 * scaleFactor, 0);
+                    } else if (child.userData.tickLabel) {
+                        child.scale.setScalar(scaleFactor * 0.6); // slightly smaller for tick numbers
+                    }
+                } else if (child.userData.axisLine) {
+                    if (child.geometry?.parameters) {
+                        const { width, height, depth } = child.geometry.parameters;
+                        if (width > height && width > depth) {
+                            child.scale.set(1, thickness / height, thickness / depth);
+                        } else if (height > width && height > depth) {
+                            child.scale.set(thickness / width, 1, thickness / depth);
+                        } else if (depth > width && depth > height) {
+                            child.scale.set(thickness / width, thickness / height, 1);
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+    return (
+        <group ref={groupRef}>
+            {/* Axis lines */}
+            {/* X Axis */}
+            <mesh position={[0, 0, 0]} userData={{ axisLine: true }}>
                 <boxGeometry args={[gridSize, 0.05, 0.05]} />
                 <meshBasicMaterial color="white" />
             </mesh>
-            <mesh position={[gridSize / 2 + 0.3, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[0.2, 0, 0.5, 32]} />
-                <meshBasicMaterial color="white" />
-            </mesh>
-            <Text
-                position={[gridSize / 2 + 2, 0, 0]}
-                fontSize={1}
-                color="white"
-                rotation={[0, 0, 0]}
-            >
-                X
-            </Text>
-
-
-            <mesh position={[0, 0, 0]}>
+            {/* Y Axis */}
+            <mesh position={[0, 0, 0]} userData={{ axisLine: true }}>
                 <boxGeometry args={[0.05, 0.05, gridSize]} />
                 <meshBasicMaterial color="white" />
             </mesh>
-            <mesh position={[0, 0, gridSize / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.2, 0, -0.5, 32]} />
-                <meshBasicMaterial color="white" />
-            </mesh>
-            <Text
-                position={[0, 0, gridSize / 2 + 2]}
-                fontSize={1}
-                color="white"
-                rotation={[0, 0, 0]}
-            >
-                Y
-            </Text>
-
-            <mesh position={[0, 0, 0]}>
+            {/* Z Axis */}
+            <mesh position={[0, 0, 0]} userData={{ axisLine: true }}>
                 <boxGeometry args={[0.05, gridSize, 0.05]} />
                 <meshBasicMaterial color="white" />
             </mesh>
-            <mesh position={[0, gridSize / 2 + 0.3, 0]} rotation={[0, Math.PI / 2, 0]}>
+
+            {/* Arrowheads and labels */}
+            {/* X Arrow */}
+            <mesh position={[gridSize / 2 + 0.3, 0, 0]} rotation={[0, 0, Math.PI / 2]} userData={{ constantSize: true, axis: 'x' }}>
+                <cylinderGeometry args={[0.2, 0, 0.5, 32]} />
+                <meshBasicMaterial color="white" />
+            </mesh>
+            <Text position={[gridSize / 2 + 2, 0, 0]} fontSize={1} color="white" rotation={[0, 0, 0]} userData={{ constantSize: true, axis: 'xLabel' }}>X</Text>
+
+            {/* Y Arrow */}
+            <mesh position={[0, 0, gridSize / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]} userData={{ constantSize: true, axis: 'y' }}>
                 <cylinderGeometry args={[0.2, 0, -0.5, 32]} />
                 <meshBasicMaterial color="white" />
             </mesh>
-            <Text
-                position={[0, gridSize / 2 + 2, 0]}
-                fontSize={1}
-                color="white"
-                rotation={[0, 0, 0]}
-            >
-                Z
-            </Text>
+            <Text position={[0, 0, gridSize / 2 + 2]} fontSize={1} color="white" rotation={[0, 0, 0]} userData={{ constantSize: true, axis: 'yLabel' }}>Y</Text>
 
+            {/* Z Arrow */}
+            <mesh position={[0, gridSize / 2 + 0.3, 0]} rotation={[0, Math.PI / 2, 0]} userData={{ constantSize: true, axis: 'z' }}>
+                <cylinderGeometry args={[0.2, 0, -0.5, 32]} />
+                <meshBasicMaterial color="white" />
+            </mesh>
+            <Text position={[0, gridSize / 2 + 2, 0]} fontSize={1} color="white" rotation={[0, 0, 0]} userData={{ constantSize: true, axis: 'zLabel' }}>Z</Text>
+
+            {/* Tick Labels */}
+            {xTicks.map((x) => (
+                <Text
+                    key={`x-${x}`}
+                    position={[x, 0, -1]}
+                    fontSize={0.8}
+                    color="white"
+                    rotation={[0, 0, 0]}
+                    userData={{ constantSize: true, tickLabel: true }}
+                >
+                    {x}
+                </Text>
+            ))}
+            {yTicks.map((y) => (
+                <Text
+                    key={`y-${y}`}
+                    position={[-1, 0, y]}
+                    fontSize={0.8}
+                    color="white"
+                    rotation={[0, 0, 0]}
+                    userData={{ constantSize: true, tickLabel: true }}
+                >
+                    {y}
+                </Text>
+            ))}
+            {zTicks.map((z) => (
+                <Text
+                    key={`z-${z}`}
+                    position={[-1, z, 0]}
+                    fontSize={0.8}
+                    color="white"
+                    rotation={[0, 0, 0]}
+                    userData={{ constantSize: true, tickLabel: true }}
+                >
+                    {z}
+                </Text>
+            ))}
+
+            {/* Grid */}
             <gridHelper args={[gridSize, 20, "gray", "gray"]} rotation={[0, Math.PI / 2, 0]} />
-        </>
+        </group>
     );
 };
 

@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
+    if (password !== repeatPassword) {
+      setError("Passwords do not match");
+      return;
+    }
     e.preventDefault();
     const url = "https://localhost:7160/api/register";
     const userToCheck = {
-      display_name: username,
-      password: password
+      username: username,
+      password: password,
+      email: "user@example.com"
     };
     try {
       const response = await fetch(url, {
@@ -32,8 +40,12 @@ const Register = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
+    <div className="register-container">
+      <div className="dual-blurred-wrapper">
+        <img src="/signup_background1.png" alt="background" className="dual-blurred" />
+        <img src="/signup_background2.png" alt="background" className="dual-blurred" />
+      </div>
+      <div className="register-box">
         <div className="login-content">
           <h2>Sign Up</h2>
           <form onSubmit={handleSubmit}>
@@ -43,7 +55,27 @@ const Register = () => {
             </label>
             <label>
               Password:
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <div className="password-input-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span className="eye-icon" onClick={() => setShowPassword((prev) => !prev)}>
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+            </label>
+            <label>
+              Repeat Password:
+              <input
+                type={showPassword ? "text" : "password"}
+                value={repeatPassword}
+                onChange={(e) => setRepeatPassword(e.target.value)}
+                required
+              />
+
             </label>
             <button type="submit">Sign Up</button>
             {error && <p className="error-message">{error}</p>}

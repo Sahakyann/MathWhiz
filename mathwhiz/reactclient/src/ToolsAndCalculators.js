@@ -31,12 +31,12 @@ const ToolsHome = ({userId}) => {
   return (
     <div className="box-grid">
       <Link to="/TwoDGraphing" className="image-box">
-        <img src="/Eiffel_Tower_Vertical.jfif" alt="Linear Algebra" className="full-image" />
-        {<div className="overlay-text">2D Graphing</div>}
+        <img src="/2DGraphingBackground.png" alt="Linear Algebra" className="full-image" />
+        {/*<div className="overlay-text">2D Graphing</div>*/}
       </Link>
       <Link to="/ThreeDGraphing" className="image-box">
-        <img src="/Eiffel_Tower_Vertical.jfif" alt="Linear Algebra" className="full-image" />
-        {<div className="overlay-text">3D Graphing</div>}
+        <img src="/ToolsAndVisualCalculators3D_ManimCE_v0.19.0.png" alt="Linear Algebra" className="full-image" />
+        {/*<div className="overlay-text">3D Graphing</div>*/}
       </Link>
       <Link to={`/visualCalculators/${userId}`} className="image-box">
         <img src="/Eiffel_Tower_Vertical.jfif" alt="Probability" className="full-image" />

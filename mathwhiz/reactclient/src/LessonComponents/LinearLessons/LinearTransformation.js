@@ -2,10 +2,62 @@ import React, { useEffect, useState } from "react";
 import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { useNavigate } from "react-router-dom";
+import ToggleMedia from "../ToggleMedia";
+import QuizComponent from "../QuizComponent";
+import { equal } from "mathjs";
 
 export default function LinearTransformation() {
+
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const navigate = useNavigate();
+
+    const definitionQuizzes = [
+        {
+            id: "def_q1",
+            question: "Which two properties must a transformation satisfy to be called linear?",
+            equation: "",
+            correctAnswer: "d",
+            options: [
+                { id: "a", label: "Preserve distances and angles" },
+                { id: "b", label: "Be invertible and continuous" },
+                { id: "c", label: "Move all vectors to the origin" },
+                { id: "d", label: "Preserve vector addition and scalar multiplication" }, // Correct
+            ],
+            solution: (
+                <div>
+                    <p>
+                        A linear transformation must preserve both addition and scalar multiplication:
+                    </p>
+                    <ul>
+                        <li><InlineMath math={"T(\\mathbf{v}_1 + \\mathbf{v}_2) = T(\\mathbf{v}_1) + T(\\mathbf{v}_2)"} /></li>
+                        <li><InlineMath math={"T(c \\mathbf{v}) = c T(\\mathbf{v})"} /></li>
+                    </ul>
+                    <p><strong>Final Answer:</strong> (d)</p>
+                </div>
+            ),
+        },
+    ];
+
+    const propertiesQuizzes = [
+        {
+            id: "prop_q1",
+            question: "Which of the following is generally true for a linear transformation?",
+            equation: "",
+            correctAnswer: "c",
+            options: [
+                { id: "a", label: "It must curve space" },
+                { id: "b", label: "It must move the origin" },
+                { id: "c", label: "Lines are mapped to lines" }, // Correct
+                { id: "d", label: "It must preserve the length of vectors" },
+            ],
+            solution: (
+                <div>
+                    <p>Linear transformations always map lines to lines (or collapse them into a point if degenerate).</p>
+                    <p><strong>Final Answer:</strong> (c)</p>
+                </div>
+            ),
+        },
+    ];
 
     useEffect(() => {
         const handleScroll = () => {
@@ -38,12 +90,53 @@ export default function LinearTransformation() {
             </nav>
 
             <div className="latex-container">
-                <h1 id="definition">Linear Transformations</h1>
+                <h2 id="definition">Definition of a Linear Transformation</h2>
+
+                <p>
+                    Picture a universe filled with points and arrows — vectors that stretch from the origin outward in every direction.
+                    Now imagine a transformation, a powerful force that moves these vectors around: stretching them, rotating them, squashing them.
+                    But unlike chaotic forces, a <strong>linear transformation</strong> plays by very strict rules. It preserves the very fabric of this universe.
+                </p>
+
+                <p>
+                    If you add two vectors together before transforming them, it's exactly the same as transforming each one separately and then adding the results.
+                    Similarly, if you stretch a vector by a number, then transform it, it's exactly the same as first transforming the vector and then stretching the result.
+                </p>
+
+                <p>
+                    These two simple but profound ideas are called:
+                </p>
+
+                <ul>
+                    <li><strong>Additivity:</strong> <InlineMath math={"T(\\mathbf{v}_1 + \\mathbf{v}_2) = T(\\mathbf{v}_1) + T(\\mathbf{v}_2)"} /></li>
+                    <li><strong>Scalar Multiplication:</strong> <InlineMath math={"T(c \\mathbf{v}) = c T(\\mathbf{v})"} /></li>
+                </ul>
+
+                <p>
+                    A transformation that satisfies these two properties is what we call a <strong>linear transformation</strong>.
+                    It keeps the structure of space perfectly intact, no matter how wild the movement might seem.
+                </p>
+
+                <ToggleMedia imageSrc="/GridStretchLinearTransformation_ManimCE_v0.19.0.png" videoSrc="/GridStretchLinearTransformation.mp4" />
+
+                <QuizComponent quizzes={definitionQuizzes} />
                 <p>A linear transformation is a function from one vector space to another that respects the underlying (linear) structure of each vector space. A linear transformation is also known as a linear operator or map. The defining characteristic of a linear transformation <InlineMath math="T : V \rightarrow W" /> is that, for any vectors <InlineMath math="v_1" /> and <InlineMath math="v_2" /> in <InlineMath math="V" /> and scalars <InlineMath math="a" /> and <InlineMath math="b" /> of the underlying field,</p>
                 <BlockMath math="T(av_1 + bv_2) = aT(v_1) + bT(v_2)" />
                 <p>Linear transformations are useful because they preserve the structure of a vector space. So, many qualitative assessments of a vector space that is the domain of a linear transformation may, under certain conditions, automatically hold in the image of the linear transformation. For instance, the structure immediately gives that the kernel and image are both subspaces (not just subsets) of the range of the linear transformation.</p>
                 <p>Most linear functions can probably be seen as linear transformations in the proper setting. Transformations in the change of basis formulas are linear, and most geometric operations, including rotations, reflections, and contractions/dilations, are linear transformations. Even more powerfully, linear algebra techniques could apply to certain very non-linear functions through either approximation by linear functions or reinterpretation as linear functions in unusual vector spaces. A comprehensive, grounded understanding of linear transformations reveals many connections between areas and objects of mathematics.</p>
 
+                <p>
+                    Linear transformations maintain the "straightness" and "flatness" of space. Lines map to lines, planes map to planes,
+                    and the origin always stays fixed (unless the transformation is degenerate).
+                </p>
+
+                <p>
+                    These properties make linear transformations foundational in almost every area of mathematics, physics, and engineering.
+                </p>
+
+                <ToggleMedia imageSrc="/LinearTransformationProperties_ManimCE_v0.19.0.png" videoSrc="/LinearTransformationProperties.mp4" />
+
+                <QuizComponent quizzes={propertiesQuizzes}/>
                 <h2 id="rotation-example">Example</h2>
                 <p>A common transformation in Euclidean geometry is rotation in a plane, about the origin. By considering Euclidean points as vectors in the vector space <InlineMath math="\mathbb{R}^2" />, rotations can be viewed in a linear algebraic sense. A rotation of <InlineMath math="v" /> counterclockwise by angle <InlineMath math="\theta" /> is given by</p>
                 <BlockMath math="\\text{Rotate}(v) = \begin{pmatrix} \cos \theta & -\sin \theta \\ \sin \theta & \cos \theta \end{pmatrix}v" />

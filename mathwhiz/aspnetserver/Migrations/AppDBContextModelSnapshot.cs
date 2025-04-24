@@ -30,10 +30,22 @@ namespace mathwhiz.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("userID"));
 
+                    b.Property<string>("confirmation_code")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
                     b.Property<string>("display_name")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("email")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("is_verified")
+                        .HasColumnType("bit");
 
                     b.Property<string>("password")
                         .IsRequired()

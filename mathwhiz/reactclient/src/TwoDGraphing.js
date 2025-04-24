@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Plot from "react-plotly.js";
-import { evaluate } from "mathjs";
+import { evaluate, compile } from "mathjs";
 import { addStyles, EditableMathField } from "react-mathquill";
 import "./Styles-CSS/2dGraphing.css";
+import { parseLatexToMath, fixMultiplication } from "./LatexParserNew"
 import { useNavigate } from "react-router-dom";
 
 addStyles();
@@ -23,7 +24,7 @@ const GraphingCalculator = () => {
         plotGraph();
     }, [expressions, xRange, yRange]);
 
-    const convertMathQuillToJS = (latex) => {
+    /*const convertMathQuillToJS = (latex) => {
         return latex
             .replace(/\\left/g, "")
             .replace(/\\right/g, "")
@@ -38,20 +39,20 @@ const GraphingCalculator = () => {
             .replace(/\\frac{([^}]*)}{([^}]*)}/g, "($1)/($2)")
             .replace(/([0-9a-zA-Z]+)\^{([^}]*)}/g, "($1^($2))")
             .replace(/^{([^}]*)}/g, "($1)");
-    };
+    };*/
 
     const plotGraph = () => {
         try {
             const resolution = 1000;
             let step = (xRange[1] - xRange[0]) / resolution;
             let xValues = Array.from({ length: resolution }, (_, i) => xRange[0] + i * step);
-
+    
             let graphData = expressions.map((expr, index) => {
                 try {
-                    let convertedExpr = convertMathQuillToJS(expr);
-                    console.log("Converted Expression: " + convertedExpr)
-                    let yValues = xValues.map(x => evaluate(convertedExpr, { x }));
-
+                    let node = parseLatexToMath(expr);
+                    let compiledExpr = compile(node);
+                    let yValues = xValues.map(x => compiledExpr.evaluate({ x }));
+    
                     return {
                         x: xValues,
                         y: yValues,
@@ -65,10 +66,10 @@ const GraphingCalculator = () => {
                     return null;
                 }
             }).filter(item => item !== null);
-
+    
             setData(graphData);
         } catch (error) {
-            console.error("Invalid function(s)");
+            console.error("Invalid function(s)", error);
         }
     };
 

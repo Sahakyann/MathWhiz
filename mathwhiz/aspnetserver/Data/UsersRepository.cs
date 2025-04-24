@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using mathwhiz.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace mathwhiz.Data
@@ -59,6 +60,32 @@ namespace mathwhiz.Data
             {
                 try
                 {
+                    await db.Users.AddAsync(userToCreate);
+                    return await db.SaveChangesAsync() >= 1;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        internal static async Task<bool> CreateUserAsync(LoginDTO loginDTO)
+        {
+            using (var db = new AppDBContext())
+            {
+                try
+                {
+                    User userToCreate = new User
+                    {
+                        username = loginDTO.username,
+                        password = loginDTO.password,
+                        email = loginDTO.email,
+                        profile_picture = "",
+                        profile_background = "",
+                        user_bio = "",
+                        display_name = ""
+                    };
                     await db.Users.AddAsync(userToCreate);
                     return await db.SaveChangesAsync() >= 1;
                 }
