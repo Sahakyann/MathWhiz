@@ -22,6 +22,32 @@ namespace mathwhiz.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("aspnetserver.Data.UserFavorite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserFavorites");
+                });
+
             modelBuilder.Entity("mathwhiz.Data.User", b =>
                 {
                     b.Property<int>("userID")
@@ -104,6 +130,25 @@ namespace mathwhiz.Migrations
                     b.HasIndex("OwnerUserID");
 
                     b.ToTable("SavedAssets");
+                });
+
+            modelBuilder.Entity("aspnetserver.Data.UserFavorite", b =>
+                {
+                    b.HasOne("mathwhiz.Data.UserSavedAsset", "UserAsset")
+                        .WithMany()
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("mathwhiz.Data.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("UserAsset");
                 });
 
             modelBuilder.Entity("mathwhiz.Data.UserSavedAsset", b =>

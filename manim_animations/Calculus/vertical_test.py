@@ -25,7 +25,7 @@ class CalculusBackground(Scene):
             x_length=8,
             y_length=6,
             axis_config={"include_tip": True,"include_ticks": False}
-        )
+        )#.set_color(BLUE)
 
         graph = axes.plot(func, x_range=(0, 10, 1), color=YELLOW)
         vg = VGroup(axes,graph).next_to(integral,DOWN,buff=2)

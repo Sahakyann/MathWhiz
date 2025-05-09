@@ -26,7 +26,7 @@ const ProbabilityHome = () => {
       </div>
       {isDetailView ? (
         <div className="detail-view">
-          <Link to="/probability/intro" className="lesson">
+          <Link to="/probability/introProb" className="lesson">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Probability Basics" />
             <div className="lesson-content">
               <h3>Introduction to Probability</h3>

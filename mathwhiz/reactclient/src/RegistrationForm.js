@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import API_BASE_URL from './constants';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ const Register = () => {
       return;
     }
     e.preventDefault();
-    const url = "https://localhost:7160/api/register";
+    const url = `${API_BASE_URL}/api/register`;
     const userToCheck = {
       username: username,
       password: password,

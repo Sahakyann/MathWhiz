@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Statistics() {
   return (
-    <div className="statistics-page">
+    <div className="lesson-hub-page">
       <StatisticsHome />
     </div>
   );
@@ -19,14 +19,14 @@ const StatisticsHome = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="statistics-page">
+    <div className="lesson-hub-page">
       <div className="button-container">
         <button className="transparent-button" onClick={() => navigate("/")}>Back to Home</button>
         <button className="transparent-button" onClick={toggleView}>{isDetailView ? "Card View" : "Detail View"}</button>
       </div>
       {isDetailView ? (
         <div className="detail-view">
-          <Link to="/statistics/descriptive" className="lesson">
+          <Link to="/statistics/introStat" className="lesson">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png"alt="Descriptive Statistics" />
             <div className="lesson-content">
               <h3>Descriptive Statistics</h3>
@@ -34,7 +34,7 @@ const StatisticsHome = () => {
             </div>
           </Link>
 
-          <Link to="/statistics/visualization" className="lesson">
+          <Link to="/statistics/dataVis" className="lesson">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png"alt="Data Visualization" />
             <div className="lesson-content">
               <h3>Data Visualization</h3>
@@ -42,7 +42,7 @@ const StatisticsHome = () => {
             </div>
           </Link>
 
-          <Link to="/statistics/convergence" className="lesson">
+          <Link to="/statistics/convergenceTypes" className="lesson">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Convergence" />
             <div className="lesson-content">
               <h3>Types of Convergence</h3>
@@ -58,15 +58,15 @@ const StatisticsHome = () => {
             </div>
           </Link>
 
-          <Link to="/statistics/bias-variance" className="lesson">
+          {/*<Link to="/statistics/bias-variance" className="lesson">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Bias Variance Decomposition" />
             <div className="lesson-content">
               <h3>Bias-Variance Decomposition</h3>
               <p>Breaking down error in model predictions.</p>
             </div>
-          </Link>
+          </Link>*/}
 
-          <Link to="/statistics/estimators" className="lesson">
+          <Link to="/statistics/estimation-methods" className="lesson">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Estimators" />
             <div className="lesson-content">
               <h3>Method of Moments & Maximum Likelihood Estimator</h3>
@@ -92,17 +92,17 @@ const StatisticsHome = () => {
         </div>
       ) : (
         <div className="section-grid">
-          <Link to="/statistics/descriptive" className="grid-box">
+          <Link to="/statistics/introStat" className="grid-box">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Descriptive" className="grid-image" />
             <div className="grid-text">Descriptive Statistics</div>
           </Link>
 
-          <Link to="/statistics/visualization" className="grid-box">
+          <Link to="/statistics/dataVis" className="grid-box">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png"alt="Visualization" className="grid-image" />
             <div className="grid-text">Data Visualization</div>
           </Link>
 
-          <Link to="/statistics/convergence" className="grid-box">
+          <Link to="/statistics/convergenceTypes" className="grid-box">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Convergence" className="grid-image" />
             <div className="grid-text">Convergence</div>
           </Link>
@@ -112,12 +112,12 @@ const StatisticsHome = () => {
             <div className="grid-text">MSE & Bias</div>
           </Link>
 
-          <Link to="/statistics/bias-variance" className="grid-box">
+          {/*<Link to="/statistics/bias-variance" className="grid-box">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Bias Variance" className="grid-image" />
             <div className="grid-text">Bias-Variance</div>
-          </Link>
+          </Link>*/}
 
-          <Link to="/statistics/estimators" className="grid-box">
+          <Link to="/statistics/estimation-methods" className="grid-box">
             <img src="/StatisticsThumbnail_ManimCE_v0.19.0.png" alt="Estimators" className="grid-image" />
             <div className="grid-text">Estimators</div>
           </Link>

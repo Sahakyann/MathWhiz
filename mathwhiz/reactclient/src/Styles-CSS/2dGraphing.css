@@ -2,8 +2,6 @@
 .graph-container {
     display: flex;
     height: 100vh;
-    background-color: #121212;
-    color: #ffffff;
     margin-top: 60px;
     font-family: 'Inter', sans-serif;
 }
@@ -12,7 +10,7 @@
 .sidebar-graph {
     width: 400px; 
     min-width: 350px;
-    background-color: #1E1E1E;
+
     padding: 25px;
     overflow-y: auto;
     border-right: 2px solid #333;
@@ -20,6 +18,25 @@
     flex-direction: column;
 }
 
+body.dark-mode .graph-container {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.light-mode .graph-container {
+    background-color: #ffffff;
+    color: #111;
+}
+
+body.dark-mode .sidebar-graph {
+    background-color: #1E1E1E;
+    border-right: 2px solid #333;
+}
+
+body.light-mode .sidebar-graph {
+    background-color: #f9f9f9;
+    border-right: 2px solid #ccc;
+}
 
 .input-group {
     display: flex;
@@ -31,9 +48,6 @@
     flex: 1;
     padding: 10px;
     border-radius: 6px;
-    border: 1px solid #555;
-    background-color: #333;
-    color: #ffffff;
     outline: none;
     font-size: 16px;
 }
@@ -44,7 +58,7 @@
     padding: 7px;
     border-radius: 6px;
     border: none;
-    color: white;
+
     cursor: pointer;
     font-size: 14px;
 }
@@ -60,10 +74,31 @@
     font-size: 16px;
 }
 
-.add-button {
+body.dark-mode .add-button,
+body.dark-mode .plot-button {
+    background-color: #2c2c2c;
     color: white;
 }
 
+body.light-mode .add-button,
+body.light-mode .plot-button {
+    background-color: #f0f0f0;
+    color: #111;
+}
+body.dark-mode .input-group input,
+body.dark-mode .input-group .mq-editable-field,
+body.dark-mode .axis-controls input {
+    background-color: #333;
+    color: #ffffff;
+}
+
+body.light-mode .input-group input,
+body.light-mode .input-group .mq-editable-field,
+body.light-mode .axis-controls input {
+    background-color: #ffffff;
+    color: #111111;
+    border: 1px solid #ccc;
+}
 
 .plot-area {
     flex: 1;

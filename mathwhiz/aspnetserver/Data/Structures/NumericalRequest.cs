@@ -8,6 +8,7 @@ namespace aspnetserver.Data.Structures
         public int maxIterations { get; set; }
         [JsonIgnore]
         public const string scriptPathNumerical = "G:\\Capstone\\manim_animations\\Numerical";
+        
 
         public NumericalRequest(string latex_function,float? xMin, float? xMax, float? initialGuess) : base(latex_function, xMin, xMax)
         {

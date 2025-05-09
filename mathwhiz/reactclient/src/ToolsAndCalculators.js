@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
-export default function ToolsAndCalculators({ }) {
+export default function ToolsAndCalculators({ isDarkMode }) {
   const [isExiting, setIsExiting] = useState(false);
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -12,7 +12,7 @@ export default function ToolsAndCalculators({ }) {
     setIsExiting(true);
     setTimeout(() => {
       navigate("/");
-    }, 250);
+    }, 300);
   };
 
 
@@ -21,26 +21,28 @@ export default function ToolsAndCalculators({ }) {
       <div className="back-arrow" onClick={handleBackClick}>
         &#8592; Back
       </div>
-      <ToolsHome userId={userId}/>
+      <ToolsHome userId={userId} isDarkMode={isDarkMode}/>
     </div>
   );
 }
 
-const ToolsHome = ({userId}) => {
+const ToolsHome = ({userId, isDarkMode}) => {
   console.log(`User Id Received ${userId}`);
   return (
     <div className="box-grid">
-      <Link to="/TwoDGraphing" className="image-box">
-        <img src="/2DGraphingBackground.png" alt="Linear Algebra" className="full-image" />
+      <Link to={`/TwoDGraphing/${userId}`} className="image-box">
+        <img src={isDarkMode ? "/2DGraphingBackground.png" : "/TwoDGraphingBackground_ManimCE_v0.19.0_white.png"} alt="2D Graphing" className="full-image" />
+        
         {/*<div className="overlay-text">2D Graphing</div>*/}
       </Link>
-      <Link to="/ThreeDGraphing" className="image-box">
-        <img src="/ToolsAndVisualCalculators3D_ManimCE_v0.19.0.png" alt="Linear Algebra" className="full-image" />
+      <Link to={`/ThreeDGraphing/${userId}`} className="image-box">
+        <img src={isDarkMode ? "/ToolsAndVisualCalculators3D_ManimCE_v0.19.0_dark.png": "/ToolsAndVisualCalculators3D_ManimCE_v0.19.0_white.png"} alt="Linear Algebra" className="full-image" />
         {/*<div className="overlay-text">3D Graphing</div>*/}
       </Link>
       <Link to={`/visualCalculators/${userId}`} className="image-box">
-        <img src="/Eiffel_Tower_Vertical.jfif" alt="Probability" className="full-image" />
-        {<div className="overlay-text">Visual Tools</div>}
+        <img src={isDarkMode ? "/VisualCalculatorsBackground_ManimCE_v0.19.0_dark.png" : "/VisualCalculatorsBackground_ManimCE_v0.19.0_white.png"} alt="Probability" className="full-image" />
+
+        {/*<div className="overlay-text">Visual Tools</div>*/}
       </Link>
     </div>
   );

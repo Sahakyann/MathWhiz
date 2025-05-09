@@ -4,7 +4,7 @@ config.frame_size = (1080, 1920)
 
 class ToolsAndVisualCalculators3D(ThreeDScene):
     def construct(self):
-        self.camera.background_color = WHITE
+        self.camera.background_color = BLACK
 
         
         self.set_camera_orientation(phi=75 * DEGREES, theta=30 * DEGREES)

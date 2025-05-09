@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
+import API_BASE_URL from './constants';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -11,8 +12,9 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setError("");
 
-    try {
-        const response = await fetch("https://localhost:7160/api/login", {
+    try { /* https://localhost:7160/api/login */
+        console.log(`${API_BASE_URL}/api/login`)
+        const response = await fetch(`${API_BASE_URL}/api/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include", 
@@ -75,7 +77,7 @@ export default Login;
 
 const fetchProtectedData = async () => {
   try {
-      const response = await fetch("https://localhost:7160/api/protected", {
+      const response = await fetch(`${API_BASE_URL}/api/protected`, {
           method: "GET",
           credentials: "include",
       });

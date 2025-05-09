@@ -5,6 +5,7 @@ config.frame_size = (1080, 1920)
 
 class ToolsAndVisualCalculators(ThreeDScene):
     def construct(self):
+        #self.camera.background_color = WHITE
         title = Text("Visual Calculators").scale(1.7).move_to([0, 10, 0])
         title2 = Text("And Tools").scale(1.7).next_to(title,DOWN)
         title.set_color(color_gradient([TEAL, TEAL_D], 2))
@@ -17,7 +18,7 @@ class ToolsAndVisualCalculators(ThreeDScene):
             x_length=6,
             y_length=4,
             tips=False,
-        )
+        ).set_color(BLUE)
         graph_2d = axes_2d.plot(lambda x: 1 / x, x_range=[-4, -0.2], color= TEAL_D)
         graph_2d_right = axes_2d.plot(lambda x: 1 / x, x_range=[0.2, 4], color=TEAL_E)
 
@@ -32,7 +33,7 @@ class ToolsAndVisualCalculators(ThreeDScene):
             x_length=5,
             y_length=5,
             z_length=3,
-        )
+        ).set_color(BLUE)
 
         def surface_func(u, v):
             return np.array([u, v, np.sin(u**2 + v**2)])
@@ -60,7 +61,7 @@ class ToolsAndVisualCalculators(ThreeDScene):
             x_length=7,
             y_length=3,
             tips=False,
-        )
+        ).set_color(BLUE)
 
         original = axes_taylor.plot(lambda x: np.sin(x), color=WHITE)
         approx1 = axes_taylor.plot(lambda x: x, x_range=[-3, 3], color=TEAL)

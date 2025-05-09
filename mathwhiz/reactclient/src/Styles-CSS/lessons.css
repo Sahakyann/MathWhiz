@@ -1,12 +1,17 @@
-.katex {
-  
+body.dark-mode .katex {
   font-size: 1.1rem;
-  color: #9897ff; 
+  color: #9897ff;
 }
+
+body.light-mode .katex {
+  font-size: 1.1rem;
+  color: #3c3caa;
+}
+
 
 .katex-display {
   font-size: 1.2rem; 
-  line-height: 1.8; 
+  line-height: 1.9;
   text-align: center;
   margin: 1rem 0; 
 }
@@ -32,19 +37,29 @@
   font-size: 15px;
   text-align: justify;
   margin: 0 auto;
-  line-height: 1.9;
+  line-height: 2;
   max-width: 600px;
 }
 
+.latex-container h1 {
+  font-size: 30px;
+  margin-top: 100px;
+  margin-bottom: 15px;
+  max-width: 100%;
+  padding: 0 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+}
 .latex-container h2{
   font-size: 25px;
-  margin-top: 100px;
+  margin-top: 80px;
   margin-bottom: 15px;
 }
 
 .latex-container h3{
   font-size: 18px;
-  margin-top: 15px;
+  margin-top: 30px;
   margin-bottom: 15px;
 }
   
@@ -59,14 +74,27 @@
   margin: 0 auto;
 }
 
+body.dark-mode .latex-container {
+  color: #e0e0e0;
+}
+
+body.light-mode .latex-container {
+  color: #222222;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
-  .latex-container strong {
-    color: #b7aadb; /*#a69cc2*/
-    font-weight: bold;
-  }
+body.dark-mode .latex-container strong {
+  color: #9d8cff;
+  font-weight: bold;
+}
+
+body.light-mode .latex-container strong {
+  color: #007bff;
+  font-weight: bold;
+}
 
   @media (max-width: 768px) {
     .katex-display {
@@ -100,12 +128,21 @@ html {
 .quiz-box {
     width: 30%;
     min-width: 400px;
-    background-color: #222;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     margin: 20px auto;
+}
+body.dark-mode .quiz-box {
+  background-color: #222;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+body.light-mode .quiz-box {
+  background-color: #ffffff;
+  color: #111;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .quiz-option {
@@ -130,6 +167,14 @@ html {
   list-style-position: inside;
 }
 
+.latex-container ol {
+  padding-left: 2rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  text-align: left;
+  list-style-position: inside;
+}
+
 .latex-container li {
   margin-bottom: 0.5rem;
 }
@@ -137,7 +182,7 @@ html {
   
 .latex-container {
     font-family: "Inter";
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     color: #e0e0e0;
     text-align: justify;

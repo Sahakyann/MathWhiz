@@ -8,6 +8,7 @@ namespace aspnetserver.Data.Structures
         public float expansionPoint { get; set; }
         public float degree { get; set; }
 
+
         public TaylorSeriesRequest(string latex_function, float expansionPoint, float degree,float? xMin, float? xMax)
             : base(latex_function, xMin, xMax)
         {

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { addStyles, EditableMathField } from "react-mathquill";
 import "./Styles-CSS/visualCalculators.css"
-
+import API_BASE_URL from './constants';
 
 addStyles();
 
@@ -106,7 +106,7 @@ export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoad
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-function-limit",
+            `${API_BASE_URL}/api/get-function-limit`,
             { function: input, xMin, xMax, yMin, yMax },
             { responseType: "blob" }
         );
@@ -130,7 +130,7 @@ export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, y
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-function-integral",
+            `${API_BASE_URL}/api/get-function-integral`,
             { latex_function, xMin, xMax, yMin, yMax, xStep,yStep,integral_dx,integral_from,integral_to},
             { responseType: "blob" }
         );

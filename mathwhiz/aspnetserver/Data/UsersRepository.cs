@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using aspnetserver.Data;
 using mathwhiz.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -199,12 +200,62 @@ namespace mathwhiz.Data
             }
         }
 
+        internal static async Task<bool> AddFavoriteAsync(int userId, int assetId)
+        {
+            using (var db = new AppDBContext())
+            {
+                bool exists = await db.UserFavorites
+                    .AnyAsync(f => f.UserId == userId && f.AssetId == assetId);
+
+                if (exists)
+                    return false;
+
+                var favorite = new UserFavorite
+                {
+                    UserId = userId,
+                    AssetId = assetId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                db.UserFavorites.Add(favorite);
+                await db.SaveChangesAsync();
+                return true;
+            }
+        }
+
+        internal static async Task<bool> RemoveFavoriteAsync(int userId, int assetId)
+        {
+            using (var db = new AppDBContext())
+            {
+                var favorite = await db.UserFavorites
+                    .FirstOrDefaultAsync(f => f.UserId == userId && f.AssetId == assetId);
+
+                if (favorite == null)
+                    return false;
+
+                db.UserFavorites.Remove(favorite);
+                await db.SaveChangesAsync();
+                return true;
+            }
+        }
+
         internal static async Task<List<UserSavedAsset>> GetUserAssetsAsync(int userId)
         {
             using (var db = new AppDBContext())
             {
                 return await db.SavedAssets
                     .Where(asset => asset.OwnerUserID == userId)
+                    .OrderByDescending(asset => asset.CreatedAt)
+                    .ToListAsync();
+            }
+        }
+
+        internal static async Task<List<UserFavorite>> GetUserFavoriteAssetsAsync(int userId)
+        {
+            using (var db = new AppDBContext())
+            {
+                return await db.UserFavorites
+                    .Where(asset => asset.UserId == userId)
                     .OrderByDescending(asset => asset.CreatedAt)
                     .ToListAsync();
             }

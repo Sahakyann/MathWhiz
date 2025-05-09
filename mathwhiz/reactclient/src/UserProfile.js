@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./Styles-CSS/UserProfileStyle.css";
 import { useParams } from "react-router-dom";
 import { useNavigate, Navigate } from "react-router-dom";
+import API_BASE_URL from './constants';
+import { FaRegStar, FaStar } from "react-icons/fa";
 
 const UserProfile = () => {
   const [image, setImage] = useState("/Koala.jpg");
@@ -14,12 +16,55 @@ const UserProfile = () => {
   const [userAssets, setUserAssets] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [assetsLoading, setAssetsLoading] = useState(true);
+  const [favoriteAssetIds, setFavoriteAssetIds] = useState([]);
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+
+  const toggleFavorite = async (assetId) => {
+    const isAlreadyFavorite = favoriteAssetIds.includes(assetId);
+
+    try {
+      const method = isAlreadyFavorite ? "DELETE" : "POST";
+      const response = await fetch(`${API_BASE_URL}/api/user-favorites/${userId}/${assetId}`, {
+        method,
+        credentials: "include"
+      });
+
+      if (response.ok) {
+        // Sort to show user favorites on the top
+        setFavoriteAssetIds((prev) =>
+          isAlreadyFavorite
+            ? prev.filter((id) => id !== assetId)
+            : [...new Set([...prev, assetId])]
+
+        );
+        //fetchUserAssets();
+      } else {
+        console.error("Failed to toggle favorite");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  const fetchFavorites = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user-favorites/${userId}`);
+      if (response.ok) {
+        const favorites = await response.json();
+        console.log(favorites)
+        setFavoriteAssetIds(favorites);
+        return favorites;
+      }
+    } catch (err) {
+      console.error("Error loading favorites", err);
+    }
+  };
 
   const handleDeleteAsset = async (assetId) => {
     if (!window.confirm("Are you sure you want to delete this visualization?")) return;
 
     try {
-      const response = await fetch(`https://localhost:7160/api/delete-user-asset/${userId}/${assetId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/delete-user-asset/${userId}/${assetId}`, {
         method: "DELETE"
       });
 
@@ -40,7 +85,7 @@ const UserProfile = () => {
 
     const validateToken = async () => {
       try {
-        const response = await fetch("https://localhost:7160/api/validate-token", {
+        const response = await fetch(`${API_BASE_URL}/api/validate-token`, {
           method: "GET",
           credentials: "include"
         });
@@ -59,7 +104,7 @@ const UserProfile = () => {
 
     const getUserDetails = async () => {
       try {
-        const response = await fetch(`https://localhost:7160/api/get-user-by-id/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/get-user-by-id/${userId}`, {
           method: "GET",
           credentials: "include"
         });
@@ -78,7 +123,7 @@ const UserProfile = () => {
 
     const getUserProfilePicture = async (event) => {
       try {
-        const response = await fetch(`https://localhost:7160/api/get-profile-picture/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/get-profile-picture/${userId}`, {
           method: "GET"
         });
 
@@ -86,7 +131,7 @@ const UserProfile = () => {
         console.log(result.success)
         console.log(result.filePath)
         if (result.success) {
-          setImage(`https://localhost:7160${result.filePath}`);
+          setImage(`${API_BASE_URL}${result.filePath}`);
         } else {
           console.log(result.Message || "Failed to get the profile picture.");
           setImage("/Koala.jpg");
@@ -99,7 +144,7 @@ const UserProfile = () => {
 
     const getUserBackgroundImage = async () => {
       try {
-        const response = await fetch(`https://localhost:7160/api/get-background-picture/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/get-background-picture/${userId}`, {
           method: "GET"
         });
 
@@ -107,7 +152,7 @@ const UserProfile = () => {
         console.log(result.success)
         console.log(result.filePath)
         if (result.success) {
-          setBackgroundImage(`https://localhost:7160${result.filePath}`);
+          setBackgroundImage(`${API_BASE_URL}${result.filePath}`);
         } else {
           setBackgroundImage("/default-background.jfif");
         }
@@ -117,13 +162,20 @@ const UserProfile = () => {
       }
     };
 
-    const fetchUserAssets = async () => {
+    const fetchUserAssets = async (favorites = []) => {
       setAssetsLoading(true);
       try {
-        const response = await fetch(`https://localhost:7160/api/get-user-assets/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/api/get-user-assets/${userId}`);
         if (response.ok) {
           const assets = await response.json();
-          setUserAssets(assets);
+          // Sort to show user favorites on the top
+          const sorted = [...assets].sort((a, b) => {
+            const aFav = favorites.includes(a.assetId);
+            const bFav = favorites.includes(b.assetId);
+            return (aFav === bFav) ? 0 : aFav ? -1 : 1;
+          });
+
+          setUserAssets(sorted);
         } else {
           console.error("Failed to fetch user assets");
         }
@@ -135,12 +187,19 @@ const UserProfile = () => {
     };
 
 
+    const initialize = async () => {
+      await getUserProfilePicture();
+      await getUserBackgroundImage();
+      await getUserDetails();
+      await validateToken();
+      const favorites = await fetchFavorites();
+      await fetchUserAssets(favorites);
+    };
 
-    getUserProfilePicture();
-    getUserBackgroundImage();
-    getUserDetails();
-    validateToken();
-    fetchUserAssets();
+    initialize();
+
+
+
   }, [userId]);
 
   const handleSave = async () => {
@@ -151,7 +210,7 @@ const UserProfile = () => {
     };
 
     try {
-      const response = await fetch("https://localhost:7160/api/update-user", {
+      const response = await fetch(`${API_BASE_URL}/api/update-user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -179,7 +238,7 @@ const UserProfile = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch(`https://localhost:7160/api/upload-profile-picture/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/upload-profile-picture/${userId}`, {
         method: "POST",
         body: formData,
         credentials: "include"
@@ -189,7 +248,7 @@ const UserProfile = () => {
       console.log(result.success)
       console.log(result.filePath)
       if (result.success) {
-        setImage(`https://localhost:7160${result.filePath}`);
+        setImage(`${API_BASE_URL}${result.filePath}`);
       } else {
         alert(result.Message || "Failed to fetch the file.");
       }
@@ -207,7 +266,7 @@ const UserProfile = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch(`https://localhost:7160/api/upload-background-picture/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/upload-background-picture/${userId}`, {
         method: "POST",
         body: formData,
         credentials: "include"
@@ -217,7 +276,7 @@ const UserProfile = () => {
       console.log(result.success)
       console.log(result.filePath)
       if (result.success) {
-        setBackgroundImage(`https://localhost:7160${result.filePath}`);
+        setBackgroundImage(`${API_BASE_URL}${result.filePath}`);
       } else {
         alert(result.Message || "Failed to upload background image.");
       }
@@ -315,6 +374,14 @@ const UserProfile = () => {
           )}
         </div>
       </div>
+      <div style={{ marginTop: "20px", textAlign: "center" }}>
+        <button
+          className="transparent-button"
+          onClick={() => setShowBookmarksOnly((prev) => !prev)}
+        >
+          {showBookmarksOnly ? "Show All Visualizations" : "Show Bookmarks Only"}
+        </button>
+      </div>
       {assetsLoading ? (
         <div className="loading-screen">
           <div className="loading-spinner"></div>
@@ -323,20 +390,35 @@ const UserProfile = () => {
       ) : (
         <div className="asset-grid">
           {userAssets.length > 0 ? (
-            userAssets.map((asset, index) => (
+            (userAssets.filter(asset =>
+              !showBookmarksOnly || favoriteAssetIds.includes(asset.assetId)
+            )).map((asset, index) => (
               <div className="asset-item" key={index}>
-                <video
-                  muted
-                  autoPlay
-                  loop
-                  playsInline
-                  className="asset-video"
-                  onClick={() => setSelectedVideo(asset)}
-                >
-                  <source src={`https://localhost:7160${asset.saved_Asset}`} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-
+                <div className="user-profile-video-wrapper">
+                  <video
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                    className="asset-video"
+                    onClick={() => setSelectedVideo(asset)}
+                  >
+                    <source src={`${API_BASE_URL}${asset.saved_Asset}`} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {authorized && (
+                    <button
+                      className="favorite-button"
+                      onClick={() => toggleFavorite(asset.assetId)}
+                      style={{
+                        color: favoriteAssetIds.includes(asset.assetId) ? 'gold' : 'white',
+                      }}
+                      title={favoriteAssetIds.includes(asset.assetId) ? "Remove Bookmark" : "Bookmark"}
+                    >
+                      {favoriteAssetIds.includes(asset.assetId) ? <FaStar /> : <FaRegStar />}
+                    </button>
+                  )}
+                </div>
               </div>
             ))
           ) : (
@@ -357,7 +439,7 @@ const UserProfile = () => {
                   </button>
                 )}
               </div>
-              <video src={`https://localhost:7160${selectedVideo.saved_Asset}`} autoPlay loop muted controls />
+              <video src={`${API_BASE_URL}${selectedVideo.saved_Asset}`} autoPlay loop muted controls />
 
             </>
           </div>

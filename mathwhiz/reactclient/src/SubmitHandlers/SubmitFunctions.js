@@ -1,10 +1,44 @@
 import axios from "axios";
+import API_BASE_URL from '../constants';
+
+export async function submitMatrixMultiplication(matrixA, matrixB, setLoading, setVideoUrl, videoUrl, userId, screenshot_only) {
+    try {
+        console.log(matrixA)
+        console.log(matrixB)
+        setLoading(true);
+
+        const response = await axios.post(
+            `${API_BASE_URL}/api/get-matrix-multiplication/${userId}`,
+            {
+                Matrix: matrixA,
+                Vectors: matrixB,
+                screenshot_only
+            },
+            { responseType: "blob" }
+        );
+
+        if (videoUrl) {
+            URL.revokeObjectURL(videoUrl);
+        }
+
+        const type = screenshot_only ? "image/png" : "video/mp4";
+        const url = URL.createObjectURL(new Blob([response.data], { type }));
+        setVideoUrl(null);
+        setTimeout(() => setVideoUrl(url), 10);
+        return screenshot_only ? "image" : "video";
+    } catch (error) {
+        console.error("Error generating matrix multiplication visualization:", error);
+        alert("Failed to generate matrix multiplication animation.");
+    } finally {
+        setLoading(false);
+    }
+}
 
 export async function submitFunctionDerivative(input, xMin, xMax, yMin, yMax, xStep, yStep, derivFrom, derivTo, setLoading, setVideoUrl, videoUrl) {
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-function-derivative",
+            `${API_BASE_URL}/api/get-function-derivative`,
             { input, xMin, xMax, yMin, yMax, xStep, yStep, derivFrom, derivTo },
             { responseType: "blob" }
         );
@@ -24,17 +58,18 @@ export async function submitFunctionDerivative(input, xMin, xMax, yMin, yMax, xS
     }
 }
 
-export async function submitEigenvalueVisualizer(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId) {
+export async function submitEigenvalueVisualizer(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId, screenshot_only) {
     try {
         setLoading(true);
         const response = await axios.post(
-            `https://localhost:7160/api/get-eigenvector-visualizer/${userId}`,
+            `${API_BASE_URL}/api/get-eigenvector-visualizer/${userId}`,
             {
                 matrix: [
                     [parseFloat(matrixA), parseFloat(matrixB)],
                     [parseFloat(matrixC), parseFloat(matrixD)]
                 ],
-                vectors
+                vectors,
+                screenshot_only
             },
             { responseType: "blob" }
         );
@@ -43,9 +78,11 @@ export async function submitEigenvalueVisualizer(matrixA, matrixB, matrixC, matr
             URL.revokeObjectURL(videoUrl);
         }
 
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
+        const type = screenshot_only ? "image/png" : "video/mp4";
+        const url = URL.createObjectURL(new Blob([response.data], { type }));
         setVideoUrl(null);
         setTimeout(() => setVideoUrl(url), 10);
+        return screenshot_only ? "image" : "video";
     } catch (error) {
         console.error("Error submitting eigenvalue visualizer:", error);
         alert("Failed to generate Eigenvalue visualizer.");
@@ -58,7 +95,7 @@ export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoad
     try {
         setLoading(true);
         const response = await axios.post(
-            "https://localhost:7160/api/get-function-limit",
+            `${API_BASE_URL}/api/get-function-limit`,
             { function: input, xMin, xMax, yMin, yMax },
             { responseType: "blob" }
         );
@@ -78,12 +115,12 @@ export async function submitFunctionLimit(input, xMin, xMax, yMin, yMax, setLoad
     }
 }
 
-export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to, setLoading, setVideoUrl, videoUrl, userId) {
+export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to, setLoading, setVideoUrl, videoUrl, userId, screenshot_only) {
     try {
         setLoading(true);
         const response = await axios.post(
-            `https://localhost:7160/api/get-function-integral/${userId}`,
-            { latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to },
+            `${API_BASE_URL}/api/get-function-integral/${userId}`,
+            { latex_function, xMin, xMax, yMin, yMax, xStep, yStep, integral_dx, integral_from, integral_to, screenshot_only },
             { responseType: "blob" }
         );
 
@@ -91,9 +128,11 @@ export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, y
             URL.revokeObjectURL(videoUrl);
         }
 
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
+        const type = screenshot_only ? "image/png" : "video/mp4";
+        const url = URL.createObjectURL(new Blob([response.data], { type }));
         setVideoUrl(null);
         setTimeout(() => setVideoUrl(url), 10);
+        return screenshot_only ? "image" : "video";
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate visualization. Please check your input and try again.");
@@ -102,17 +141,18 @@ export async function submitFunctionIntegral(latex_function, xMin, xMax, yMin, y
     }
 }
 
-export async function submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId) {
+export async function submitFunctionLinearTransformation(matrixA, matrixB, matrixC, matrixD, vectors, setLoading, setVideoUrl, videoUrl, userId, screenshot_only) {
     try {
         setLoading(true);
         const response = await axios.post(
-            `https://localhost:7160/api/get-linear-transformation/${userId}`,
+            `${API_BASE_URL}/api/get-linear-transformation/${userId}`,
             {
                 matrix: [
                     [parseFloat(matrixA), parseFloat(matrixB)],
                     [parseFloat(matrixC), parseFloat(matrixD)]
                 ],
-                vectors: vectors
+                vectors: vectors,
+                screenshot_only
             },
             { responseType: "blob" }
         );
@@ -120,9 +160,13 @@ export async function submitFunctionLinearTransformation(matrixA, matrixB, matri
             URL.revokeObjectURL(videoUrl);
         }
 
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
+        const type = screenshot_only ? "image/png" : "video/mp4";
+        const url = URL.createObjectURL(new Blob([response.data], { type }));
+
         setVideoUrl(null);
         setTimeout(() => setVideoUrl(url), 10);
+
+        return screenshot_only ? "image" : "video";
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate visualization. Please check your input and try again.");
@@ -131,17 +175,18 @@ export async function submitFunctionLinearTransformation(matrixA, matrixB, matri
     }
 }
 
-export async function submitFunctionNewtonsMethod(latex_function, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl, userId) {
+export async function submitFunctionNewtonsMethod(latex_function, initialGuess, xMin, xMax, maxIterations, setLoading, setVideoUrl, videoUrl, userId, screenshot_only) {
     try {
         setLoading(true);
         const response = await axios.post(
-            `https://localhost:7160/api/get-newtons-method/${userId}`,
+            `${API_BASE_URL}/api/get-newtons-method/${userId}`,
             {
                 latex_function: latex_function,
                 initialGuess: initialGuess,
                 maxIterations: maxIterations,
                 xMin: xMin,
-                xMax: xMax
+                xMax: xMax,
+                screenshot_only
             },
             { responseType: "blob" }
         );
@@ -150,9 +195,13 @@ export async function submitFunctionNewtonsMethod(latex_function, initialGuess, 
             URL.revokeObjectURL(videoUrl);
         }
 
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
+        const type = screenshot_only ? "image/png" : "video/mp4";
+        const url = URL.createObjectURL(new Blob([response.data], { type }));
+
         setVideoUrl(null);
         setTimeout(() => setVideoUrl(url), 10);
+
+        return screenshot_only ? "image" : "video";
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate Newton's Method visualization. Please check your input.");
@@ -161,17 +210,18 @@ export async function submitFunctionNewtonsMethod(latex_function, initialGuess, 
     }
 }
 
-export async function submitFunctionTaylorSeries(latex_function, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl, userId) {
+export async function submitFunctionTaylorSeries(latex_function, expansionPoint, degree, xMin, xMax, setLoading, setVideoUrl, videoUrl, userId, screenshot_only) {
     try {
         setLoading(true);
         const response = await axios.post(
-            `https://localhost:7160/api/get-taylor-series/${userId}`,
+            `${API_BASE_URL}/api/get-taylor-series/${userId}`,
             {
                 latex_function,
                 expansionPoint,
                 degree,
                 xMin,
                 xMax,
+                screenshot_only
             },
             { responseType: "blob" }
         );
@@ -180,9 +230,13 @@ export async function submitFunctionTaylorSeries(latex_function, expansionPoint,
             URL.revokeObjectURL(videoUrl);
         }
 
-        const url = URL.createObjectURL(new Blob([response.data], { type: "video/mp4" }));
+        const type = screenshot_only ? "image/png" : "video/mp4";
+        const url = URL.createObjectURL(new Blob([response.data], { type }));
+
         setVideoUrl(null);
         setTimeout(() => setVideoUrl(url), 10);
+
+        return screenshot_only ? "image" : "video";
     } catch (error) {
         console.error("Error submitting function:", error);
         alert("Failed to generate Taylor series visualization. Please check your input and try again.");

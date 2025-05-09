@@ -14,6 +14,8 @@ namespace aspnetserver.Data.Structures
         [JsonIgnore]
         public const string scriptPath = "G:\\Capstone\\manim_animations\\LinearAlgebra";
 
+
+
         public LinearAlgebraRequest(Matrix matrix, Matrix vectors)
         {
             Matrix = matrix;

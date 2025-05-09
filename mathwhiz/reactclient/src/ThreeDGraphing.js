@@ -1,33 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Text } from "@react-three/drei";
+import { OrbitControls, Text, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import './Styles-CSS/ThreeDGraphing.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { evaluate, compile } from "mathjs";
-import {parseLatexToMath, fixMultiplication} from "./LatexParserNew"
-
-
-const UpdateBounds = ({ cameraRef, setXBounds, setYBounds }) => {
-    useFrame(() => {
-        if (!cameraRef.current) return;
-
-        const distance = cameraRef.current.position.length();
-        const span = distance * 0.4;
-        setXBounds({ xMin: -span, xMax: span });
-        setYBounds({ yMin: -span, yMax: span });
-    });
-
-    return null;
-};
+import { parseLatexToMath, fixMultiplication } from "./LatexParserNew"
+import { addStyles, EditableMathField } from "react-mathquill";
+addStyles();
 
 
 
-const generateSurface = (func, xMin, xMax, yMin, yMax) => {
+
+const generateSurface = (func, xMin, xMax, yMin, yMax,baseDensity) => {
     const spanX = xMax - xMin;
     const spanY = yMax - yMin;
-    const baseDensity = 5;
+
     const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+ 
     const resolutionX = clamp(Math.floor(spanX * baseDensity), 50, 300);
     const resolutionY = clamp(Math.floor(spanY * baseDensity), 50, 300);
     const geometry = new THREE.BufferGeometry();
@@ -65,13 +55,21 @@ const generateSurface = (func, xMin, xMax, yMin, yMax) => {
     return geometry;
 };
 
-const GraphSurface = ({ expression, xMin, xMax, yMin, yMax }) => {
+function getColorForIndex(index) {
+    const colors = ["red", "blue", "green", "yellow", "purple", "cyan", "orange"];
+    return colors[index % colors.length];
+}
+
+const GraphSurface = ({ compiledExpr, xMin, xMax, yMin, yMax, color = "red",distance }) => {
     const meshRef = useRef();
 
     useEffect(() => {
         try {
-            const mathFunc = new Function("x", "y", `return ${expression};`);
-            const newGeometry = generateSurface(mathFunc, xMin, xMax, yMin, yMax);
+            const lodFactor = Math.floor(Math.min(distance / 10, 4));
+            const baseDensity = [8, 6, 4, 3, 2][lodFactor];
+
+            const mathFunc = (x, y) => compiledExpr.evaluate({ x: x, y: y });
+            const newGeometry = generateSurface(mathFunc, xMin, xMax, yMin, yMax, baseDensity);
 
             if (meshRef.current) {
                 if (meshRef.current.geometry) {
@@ -80,29 +78,45 @@ const GraphSurface = ({ expression, xMin, xMax, yMin, yMax }) => {
                 meshRef.current.geometry = newGeometry;
             }
         } catch (error) {
-            console.error("Invalid function input:", error);
+            console.error("Error in GraphSurface:", error);
         }
-    }, [expression, xMin, xMax, yMin, yMax]);
+    }, [compiledExpr, xMin, xMax, yMin, yMax,distance]);
 
     return (
         <mesh ref={meshRef}>
-            <meshStandardMaterial color="red" roughness={0.4} metalness={0.6} side={THREE.DoubleSide} />
+            <meshStandardMaterial color={color} roughness={0.4} metalness={0.6} side={THREE.DoubleSide} />
         </mesh>
     );
 };
 
-const GridAndAxes = ({ xMin, xMax, yMin, yMax }) => {
+function calculateDynamicTickSpacing(distance) {
+    if (distance < 20) return 0.5;
+    if (distance < 40) return 1;
+    if (distance < 80) return 2;
+    if (distance < 150) return 5;
+    if (distance < 300) return 10;
+    return 20;
+}
+
+const GridAndAxes = ({ xMin, xMax, yMin, yMax, isDarkMode }) => {
     const groupRef = useRef();
     const camera = useThree((state) => state.camera);
 
     const gridSize = Math.max(Math.abs(xMax - xMin), Math.abs(yMax - yMin));
-
-    const tickSpacing = 2; // You can adjust spacing (e.g., 1, 2, 5)
+    const distance = camera.position.length();
+    const tickSpacing = calculateDynamicTickSpacing(distance);
     const xTicks = [];
     const yTicks = [];
     const zTicks = [];
 
-    
+    const axisColor = isDarkMode ? "white" : "#888";
+    const gridColor = isDarkMode ? "gray" : "#ccc";
+    const labelColor = isDarkMode ? "white" : "#888";
+
+    const xTickRefs = useRef([]);
+    const yTickRefs = useRef([]);
+    const zTickRefs = useRef([]);
+    const xyzLabelRefs = useRef([]);
 
     for (let x = Math.ceil(xMin / tickSpacing) * tickSpacing; x <= xMax; x += tickSpacing) {
         xTicks.push(x);
@@ -138,7 +152,7 @@ const GridAndAxes = ({ xMin, xMax, yMin, yMax }) => {
                     } else if (child.userData.axis === 'zLabel') {
                         child.position.set(0, span / 2 + 2 * scaleFactor, 0);
                     } else if (child.userData.tickLabel) {
-                        child.scale.setScalar(scaleFactor * 0.6); // slightly smaller for tick numbers
+                        child.scale.setScalar(scaleFactor * 0.6);
                     }
                 } else if (child.userData.axisLine) {
                     if (child.geometry?.parameters) {
@@ -153,6 +167,19 @@ const GridAndAxes = ({ xMin, xMax, yMin, yMax }) => {
                     }
                 }
             });
+
+            xTickRefs.current.forEach(label => {
+                if (label) label.quaternion.copy(camera.quaternion);
+            });
+            yTickRefs.current.forEach(label => {
+                if (label) label.quaternion.copy(camera.quaternion);
+            });
+            zTickRefs.current.forEach(label => {
+                if (label) label.quaternion.copy(camera.quaternion);
+            });
+            xyzLabelRefs.current.forEach(label => {
+                if (label) label.quaternion.copy(camera.quaternion);
+            });
         }
     });
 
@@ -162,72 +189,97 @@ const GridAndAxes = ({ xMin, xMax, yMin, yMax }) => {
             {/* X Axis */}
             <mesh position={[0, 0, 0]} userData={{ axisLine: true }}>
                 <boxGeometry args={[gridSize, 0.05, 0.05]} />
-                <meshBasicMaterial color="white" />
+                <meshBasicMaterial color={axisColor} />
             </mesh>
             {/* Y Axis */}
             <mesh position={[0, 0, 0]} userData={{ axisLine: true }}>
                 <boxGeometry args={[0.05, 0.05, gridSize]} />
-                <meshBasicMaterial color="white" />
+                <meshBasicMaterial color={axisColor}  />
             </mesh>
             {/* Z Axis */}
             <mesh position={[0, 0, 0]} userData={{ axisLine: true }}>
                 <boxGeometry args={[0.05, gridSize, 0.05]} />
-                <meshBasicMaterial color="white" />
+                <meshBasicMaterial color={axisColor} />
             </mesh>
 
             {/* Arrowheads and labels */}
             {/* X Arrow */}
             <mesh position={[gridSize / 2 + 0.3, 0, 0]} rotation={[0, 0, Math.PI / 2]} userData={{ constantSize: true, axis: 'x' }}>
                 <cylinderGeometry args={[0.2, 0, 0.5, 32]} />
-                <meshBasicMaterial color="white" />
+                <meshBasicMaterial color={labelColor}  />
             </mesh>
-            <Text position={[gridSize / 2 + 2, 0, 0]} fontSize={1} color="white" rotation={[0, 0, 0]} userData={{ constantSize: true, axis: 'xLabel' }}>X</Text>
+
+            <Text
+                ref={(el) => xyzLabelRefs.current[0] = el}
+                position={[gridSize / 2 + 2, 0, 0]}
+                fontSize={1} color={labelColor} 
+                rotation={[0, 0, 0]}
+                userData={{ constantSize: true, axis: 'xLabel' }}>
+                X
+            </Text>
 
             {/* Y Arrow */}
             <mesh position={[0, 0, gridSize / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]} userData={{ constantSize: true, axis: 'y' }}>
                 <cylinderGeometry args={[0.2, 0, -0.5, 32]} />
-                <meshBasicMaterial color="white" />
+                <meshBasicMaterial color={labelColor}  />
             </mesh>
-            <Text position={[0, 0, gridSize / 2 + 2]} fontSize={1} color="white" rotation={[0, 0, 0]} userData={{ constantSize: true, axis: 'yLabel' }}>Y</Text>
+            <Text
+                ref={(el) => xyzLabelRefs.current[1] = el}
+                position={[0, 0, gridSize / 2 + 2]}
+                fontSize={1} color={labelColor} 
+                rotation={[0, 0, 0]}
+                userData={{ constantSize: true, axis: 'yLabel' }}>
+                Y
+            </Text>
 
             {/* Z Arrow */}
             <mesh position={[0, gridSize / 2 + 0.3, 0]} rotation={[0, Math.PI / 2, 0]} userData={{ constantSize: true, axis: 'z' }}>
                 <cylinderGeometry args={[0.2, 0, -0.5, 32]} />
-                <meshBasicMaterial color="white" />
+                <meshBasicMaterial color={labelColor}  />
             </mesh>
-            <Text position={[0, gridSize / 2 + 2, 0]} fontSize={1} color="white" rotation={[0, 0, 0]} userData={{ constantSize: true, axis: 'zLabel' }}>Z</Text>
+            <Text
+                ref={(el) => xyzLabelRefs.current[2] = el}
+                position={[0, gridSize / 2 + 2, 0]}
+                fontSize={1} color={labelColor} 
+                rotation={[0, 0, 0]}
+                userData={{ constantSize: true, axis: 'zLabel' }}>
+                Z
+            </Text>
 
             {/* Tick Labels */}
-            {xTicks.map((x) => (
+            {xTicks.map((x, index) => (
                 <Text
                     key={`x-${x}`}
-                    position={[x, 0, -1]}
+                    ref={(el) => xTickRefs.current[index] = el}
+                    position={[x, 0, -distance * 0.02]}
                     fontSize={0.8}
-                    color="white"
+                    color={axisColor}
                     rotation={[0, 0, 0]}
                     userData={{ constantSize: true, tickLabel: true }}
                 >
                     {x}
                 </Text>
             ))}
-            {yTicks.map((y) => (
+            {yTicks.map((y, index) => (
                 <Text
                     key={`y-${y}`}
-                    position={[-1, 0, y]}
+                    ref={(el) => yTickRefs.current[index] = el}
+                    position={[-distance * 0.02, 0, y]}
                     fontSize={0.8}
-                    color="white"
+                    color={axisColor}
                     rotation={[0, 0, 0]}
                     userData={{ constantSize: true, tickLabel: true }}
                 >
                     {y}
                 </Text>
             ))}
-            {zTicks.map((z) => (
+            {zTicks.map((z, index) => (
                 <Text
                     key={`z-${z}`}
-                    position={[-1, z, 0]}
+                    ref={(el) => zTickRefs.current[index] = el}
+                    position={[-distance * 0.02, z, 0]}
                     fontSize={0.8}
-                    color="white"
+                    color={axisColor}
                     rotation={[0, 0, 0]}
                     userData={{ constantSize: true, tickLabel: true }}
                 >
@@ -242,30 +294,99 @@ const GridAndAxes = ({ xMin, xMax, yMin, yMax }) => {
 };
 
 
-const ThreeDGraph = () => {
-    const [expression, setExpression] = useState("Math.sin(x) * Math.cos(y)");
+
+const ThreeDGraph = ({ isDarkMode }) => {
+
+    const UpdateBounds = ({ cameraRef, setXBounds, setYBounds }) => {
+        useFrame(() => {
+            if (!cameraRef.current) return;
+    
+            const distance = cameraRef.current.position.length();
+            const span = distance * 0.4;
+            setXBounds({ xMin: -span, xMax: span });
+            setYBounds({ yMin: -span, yMax: span });
+            setDistance(distance);
+        });
+    
+        return null;
+    };
+    
+    const [functions, setFunctions] = useState([
+        { expression: "sin(x) * cos(y)", color: "#ff0000", compiledExpr: "sin(x) * cos(y)" }
+    ]);
     const [xMin, xMax] = [-10, 10];
     const [yMin, yMax] = [-10, 10];
 
     const cameraRef = useRef();
     const [xBounds, setXBounds] = useState({ xMin: -10, xMax: 10 });
     const [yBounds, setYBounds] = useState({ yMin: -10, yMax: 10 });
-
+    const [distance, setDistance] = useState(25);
     const navigate = useNavigate();
 
+    const { userId } = useParams();
+    function deleteFunction(index) {
+        const newFunctions = [...functions];
+        newFunctions.splice(index, 1);
+        setFunctions(newFunctions);
+    }
     return (
         <div className="graph-container">
             <div className="sidebar-graph">
-                <div className="input-group">
-                    <label>Function:</label>
-                    <input
-                        type="text"
-                        value={expression}
-                        onChange={(e) => setExpression(e.target.value)}
-                        placeholder="Enter function, e.g., Math.sin(x)*Math.cos(y)"
-                    />
+                {functions.map((func, index) => (
+                    <div key={index} className="input-group">
+
+                        <input
+                            type="color"
+                            className="color-picker"
+                            value={func.color}
+                            onChange={(e) => {
+                                const newFunctions = [...functions];
+                                newFunctions[index].color = e.target.value;
+                                setFunctions(newFunctions);
+                            }}
+                        />
+                        <EditableMathField
+                            latex={func.expression}
+                            onChange={(mathField) => {
+                                const newFunctions = [...functions];
+                                const latex = mathField.latex();
+                                const parsed = fixMultiplication(parseLatexToMath(latex));
+                                try {
+                                    const compiled = compile(parsed);
+                                    newFunctions[index].expression = latex;
+                                    newFunctions[index].compiledExpr = compiled;
+                                    setFunctions(newFunctions);
+                                } catch (e) {
+                                    console.error("Invalid expression:", e);
+                                }
+                            }}
+                            style={{
+                                backgroundColor: isDarkMode ? "#333" : "#fff",
+                                color: isDarkMode ? "white" : "#111", padding: "8px", borderRadius: "5px", border: isDarkMode ? "none" : "1px solid #ccc", width: "100%"
+                            }}
+                        />
+                        <div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <button
+                                    onClick={() => deleteFunction(index)}
+                                    className="delete-function-button"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                <div className="function-buttons">
+                    <button onClick={() => setFunctions([...functions, { expression: "", color: "#ff0000" }])}>Add Function</button>
+                    <button
+                        onClick={() => setFunctions(functions.slice(0, -1))}
+                        disabled={functions.length === 1}
+                    >
+                        Remove Last Function
+                    </button>
                 </div>
-                <button className="transparent-button" onClick={() => navigate('/toolsHub')}>
+                <button className="transparent-button" onClick={() => navigate(`/toolsHub/${userId}`)}>
                     Back to Tools
                 </button>
             </div>
@@ -277,22 +398,29 @@ const ThreeDGraph = () => {
                         cameraRef={cameraRef}
                         setXBounds={setXBounds}
                         setYBounds={setYBounds}
+                        setDistance={setDistance}
                     />
                     <ambientLight intensity={0.8} />
                     <directionalLight position={[5, 10, 5]} intensity={0.6} />
                     <pointLight position={[10, 10, 10]} intensity={0.7} />
-                    <GraphSurface
-                        expression={expression}
-                        xMin={xBounds.xMin}
-                        xMax={xBounds.xMax}
-                        yMin={yBounds.yMin}
-                        yMax={yBounds.yMax}
-                    />
+                    {functions.map((func, index) => (
+                        <GraphSurface
+                            key={index}
+                            compiledExpr={func.compiledExpr}
+                            xMin={xBounds.xMin}
+                            xMax={xBounds.xMax}
+                            yMin={yBounds.yMin}
+                            yMax={yBounds.yMax}
+                            color={func.color}
+                            distance={distance} 
+                        />
+                    ))}
                     <GridAndAxes
                         xMin={xBounds.xMin}
                         xMax={xBounds.xMax}
                         yMin={yBounds.yMin}
                         yMax={yBounds.yMax}
+                        isDarkMode={isDarkMode}
                     />
                     <OrbitControls />
                 </Canvas>

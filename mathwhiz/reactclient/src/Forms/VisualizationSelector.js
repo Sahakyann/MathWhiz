@@ -9,7 +9,9 @@ export function VisualizationSelector({ selectedType, setSelectedType, setVideoU
             <select value={selectedType} onChange={(e) => {
                 const newType = e.target.value;
                 setSelectedType(newType);
-                if (newType === "gradient-descent") {
+                if (newType === "gradient-descent" || newType === "central-limit-theorem" ||
+                    newType === "law-of-large-numbers"
+                ) {
                     setVideoUrl(null);
                 }
             }}>
@@ -17,14 +19,18 @@ export function VisualizationSelector({ selectedType, setSelectedType, setVideoU
                 <option value="linear-transformation">Linear Transformation</option>
                 <option value="eigenvector-visualizer">Eigenvectors</option>
                 <option value="taylor-series">Taylor Series Approximation</option>
+                <option value="central-limit-theorem">Central Limit Theorem</option>
                 <option value="newtons-method">Newton's Method</option>
                 <option value="gradient-descent">Gradient Descent Visualizer</option>
+                <option value="matrix-multiplication">Matrix Multiplication</option>
+                <option value="law-of-large-numbers">Law of Large Numbers</option>
+                <option value="geometric-fractal">Geometric Fractal</option>
             </select>
         </div >
     );
 }
 
-export function SettingsSelector({ aspectRatio, backgroundColor, setAspectRatio, setBackgroundColor, setShowSettings }) {
+export function SettingsSelector({ aspectRatio, backgroundColor, setAspectRatio, setBackgroundColor, setShowSettings, screenshotOnly, setScreenshotOnly }) {
     return (
         <div>
             <h3>Settings</h3>
@@ -52,6 +58,17 @@ export function SettingsSelector({ aspectRatio, backgroundColor, setAspectRatio,
                 onChange={(e) => setBackgroundColor(e.target.value)}
                 style={{ width: "100%", marginBottom: "10px" }}
             />
+            <div className="checkbox-container" style={{ marginTop: "1rem" }}>
+                <label className="checkbox-label">
+                    <input
+                        type="checkbox"
+                        checked={screenshotOnly}
+                        onChange={(e) => setScreenshotOnly(e.target.checked)}
+                    />
+                    <span className="checkbox-custom" />
+                    Only Generate Screenshot of Final Result
+                </label>
+            </div>
             <div className="settings-back-button-wrapper">
                 <button
                     onClick={() => setShowSettings(false)}
@@ -59,6 +76,7 @@ export function SettingsSelector({ aspectRatio, backgroundColor, setAspectRatio,
                     Back to Inputs
                 </button>
             </div>
+
         </div>
     );
 }

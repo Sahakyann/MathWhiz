@@ -5,6 +5,7 @@ config.frame_size = (1080, 1920)
 
 class ProbabilityBackground(Scene):
     def construct(self):
+        #self.camera.background_color = WHITE
         title = Text("Probability").next_to([-1.8, 9, 0]).set_color(color_gradient([ORANGE, PURPLE], 2)).scale(2.9)
 
         bayes = MathTex(r"P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}").next_to(title, DOWN, buff=2).scale(1.6).set_color(color_gradient([ORANGE, MAROON], 2))
@@ -19,7 +20,7 @@ class ProbabilityBackground(Scene):
             y_length=4,
             axis_config={"include_tip": True},
             tips=True
-        )
+        )#.set_color(PURPLE)
 
  
         def normal_dist(x):

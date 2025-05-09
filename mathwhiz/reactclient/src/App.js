@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import MathQuill, { addStyles as addMathQuillStyles } from 'react-mathquill';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate, Navigate } from "react-router-dom";
-
 import debounce from "lodash/debounce";
-
-
+import API_BASE_URL from './constants';
 
 
 
@@ -34,9 +32,16 @@ import Eigenvectors from './LessonComponents/LinearLessons/Eigenvectors.js';
 
 /* Probability Imports */
 import Probability from './Probability';
+import IntroToProbability from './LessonComponents/ProbabilityLessons/IntroToProbability.js'
 
 /* Statistics Imports */
 import Statistics from './Statistics';
+import IntroToStatistics from "./LessonComponents/StatisticsLessons/IntoToStatistics.js";
+import DataVisualization from  './LessonComponents/StatisticsLessons/DataVisualization.js';
+import ConvergenceTypes from "./LessonComponents/StatisticsLessons/TypesOfConvergence.js";
+import MSEBiasVariance from "./LessonComponents/StatisticsLessons/MSE_Bias.js";
+import EstimationMethods from "./LessonComponents/StatisticsLessons/MLE_MOM.js";
+import ConfidenceIntervals from "./LessonComponents/StatisticsLessons/ConfidenceIntevals.js";
 
 /* Other Tools */
 import ToolsAndCalculators from "./ToolsAndCalculators.js";
@@ -74,10 +79,21 @@ export default function App() {
   const [userResults, setUserResults] = useState([]);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") return false;
+    return true;
+  });
+
+  useEffect(() => {
+    document.body.className = isDarkMode ? "dark-mode" : "light-mode";
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
   const searchItems = [
     { label: "Limits", path: "/calculus/limits" },
     { label: "Squeezing Theorem", path: "/calculus/squeezing" },
-    { label: "L'Hopital's Rule", path: "/calculus/lhopital" },
+    { label: "LHopital's Rule", path: "/calculus/lhopital" },
     { label: "Integration", path: "/calculus/integration" },
     { label: "Derivatives", path: "/calculus/derivatives" },
     { label: "Chain Rule", path: "/calculus/chainRule" },
@@ -96,7 +112,7 @@ export default function App() {
 
   const debouncedUserSearch = debounce(async (value) => {
     try {
-      const res = await axios.get(`https://localhost:7160/api/get-users-by-query?query=${value}`, {
+      const res = await axios.get(`${API_BASE_URL}/api/get-users-by-query?query=${value}`, {
         withCredentials: true,
       });
       setUserResults(res.data);
@@ -127,7 +143,7 @@ export default function App() {
 
     const checkAuthStatus = async () => {
       try {
-        const response = await axios.get("https://localhost:7160/api/validate-token", {
+        const response = await axios.get(`${API_BASE_URL}/api/validate-token`, {
           withCredentials: true,
         });
         if (response.status === 200 && response.data.isValid) {
@@ -155,11 +171,11 @@ export default function App() {
       if (!userId) return;
 
       try {
-        const response = await fetch(`https://localhost:7160/api/get-profile-picture/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/api/get-profile-picture/${userId}`);
         const result = await response.json();
 
         if (result.success) {
-          setProfileImage(`https://localhost:7160${result.filePath}`);
+          setProfileImage(`${API_BASE_URL}${result.filePath}`);
         } else {
           setProfileImage("/Koala.jpg"); // Default if user has no picture uploaded
         }
@@ -183,7 +199,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://localhost:7160/api/logout", {}, { withCredentials: true });
+      await axios.post(`${API_BASE_URL}/api/logout`, {}, { withCredentials: true });
       setIsLoggedIn(false);
       setCurrentUser("");
       setUserId("");
@@ -379,6 +395,21 @@ export default function App() {
                   Visual Calculators
                 </button>
                 <button
+                  style={{
+                    backgroundColor: isDarkMode ? "#2c2c2c" : "#e0e0e0",
+                    border: isDarkMode ? "1px solid white" : "1px solid #aaa",
+                    color: isDarkMode ? "white" : "#111",
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    transition: "background-color 0.3s ease, color 0.3s ease, border 0.3s ease",
+                  }}
+                  onClick={() => setIsDarkMode(prev => !prev)}
+                >
+                  {isDarkMode ? "Light Mode" : "Dark Mode"}
+                </button>
+                <button
                   className="logout-btn"
                   onClick={() => {
                     setDropdownOpen(false);
@@ -387,6 +418,7 @@ export default function App() {
                 >
                   Logout
                 </button>
+
               </div>
             )}
           </div>
@@ -395,15 +427,13 @@ export default function App() {
 
       <Routes>
 
-
-        <Route path="/probability" element={isLoggedIn ? <Probability /> : <Navigate to="/login" />} />
         <Route path="/statistics" element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} />} />
 
         {/* User Registration and Login Routes */}
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Registration />} />
-        <Route path="/" element={isLoggedIn ? <Home isDetailView={isDetailView} userId={userId} /> : <Navigate to="/login" />} />
+        <Route path="/" element={isLoggedIn ? <Home isDetailView={isDetailView} userId={userId} isDarkMode={isDarkMode}/> : <Navigate to="/login" />} />
         <Route path="/user/profile/:userId" element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />} />
 
 
@@ -431,19 +461,33 @@ export default function App() {
         <Route path="/linearalgebra/inverseMatrices" element={isLoggedIn ? <InverseMatrices /> : <Navigate to="/login" />} />
         <Route path="/linearalgebra/eigenvectors" element={isLoggedIn ? <Eigenvectors /> : <Navigate to="/login" />} />
 
+
+        {/* Probability Routes */}
+        <Route path="/probability" element={isLoggedIn ? <Probability /> : <Navigate to="/login" />} />
+        <Route path="/probability/introProb" element={isLoggedIn ? <IntroToProbability /> : <Navigate to="/login" />} />
+
+        {/* Statistics Routes */}
+        <Route path="/statistics" element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />
+        <Route path="/statistics/introStat" element={isLoggedIn ? <IntroToStatistics /> : <Navigate to="/login" />} />
+        <Route path="/statistics/dataVis" element={isLoggedIn ? <DataVisualization /> : <Navigate to="/login" />} />
+        <Route path="/statistics/convergenceTypes" element={isLoggedIn ? <ConvergenceTypes /> : <Navigate to="/login" />} />
+        <Route path="/statistics/mse-bias" element={isLoggedIn ? <MSEBiasVariance /> : <Navigate to="/login" />} />
+        <Route path="/statistics/estimation-methods" element={isLoggedIn ? <EstimationMethods /> : <Navigate to="/login" />} />
+        <Route path="/statistics/confidence-intervals" element={isLoggedIn ? <ConfidenceIntervals /> : <Navigate to="/login" />} />
+
         { /* Graphing and Other Tool Routes */}
-        <Route path="/toolsHub" element={isLoggedIn ? <ToolsAndCalculators /> : <Navigate to="/login" />} />
-        <Route path="/toolsHub/:userId" element={isLoggedIn ? <ToolsAndCalculators /> : <Navigate to="/login" />} />
-        <Route path="/twoDGraphing" element={isLoggedIn ? <TwoDGraphing /> : <Navigate to="/login" />} />
-        <Route path="/threeDGraphing" element={isLoggedIn ? <ThreeDGraphing /> : <Navigate to="/login" />} />
-        <Route path="/visualCalculators" element={isLoggedIn ? <VisualCalculators /> : <Navigate to="/login" />} />
-        <Route path="/visualCalculators/:userId" element={isLoggedIn ? <VisualCalculators /> : <Navigate to="/login" />} />
+        {/*<Route path="/toolsHub" element={isLoggedIn ? <ToolsAndCalculators /> : <Navigate to="/login" />} />*/}
+        <Route path="/toolsHub/:userId" element={isLoggedIn ? <ToolsAndCalculators isDarkMode={isDarkMode}/> : <Navigate to="/login" />} />
+        <Route path="/twoDGraphing/:userId" element={isLoggedIn ? <TwoDGraphing isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
+        <Route path="/threeDGraphing/:userId" element={isLoggedIn ? <ThreeDGraphing isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
+        {/*<Route path="/visualCalculators" element={isLoggedIn ? <VisualCalculators /> : <Navigate to="/login" />} />*/}
+        <Route path="/visualCalculators/:userId" element={isLoggedIn ? <VisualCalculators isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
       </Routes>
     </div>
   );
 }
 
-const Home = ({ userId }) => {
+const Home = ({ userId, isDarkMode }) => {
   const [isEntering, setIsEntering] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const navigate = useNavigate();
@@ -464,23 +508,24 @@ const Home = ({ userId }) => {
   };
 
   return (
-    <div className={`home-wrapper ${isEntering ? "slide-in-from-left" : ""} ${isTransitioning ? "slide-out-left" : ""}`}>
+    <div className={`home-wrapper home-page ${isEntering ? "slide-in-from-left" : ""} ${isTransitioning ? "slide-out-left" : ""}`}>
       <div className="box-grid">
         <Link to="/calculus" className="image-box">
-          <img src="/CalculusBackground_ManimCE_v0.19.0.png" alt="Calculus" className="full-image" />
+          <img  src={isDarkMode ? "/CalculusBackground_ManimCE_v0.19.0.png" : "/CalculusBackground_ManimCE_v0.19.0_white.png"}
+           alt="Calculus" className="full-image" />
         </Link>
         <Link to="/linearalgebra" className="image-box">
-          <img src="/LinearAlgebraBackground_ManimCE_v0.19.0.png" alt="Linear Algebra" className="full-image" />
+          <img src={isDarkMode ? "/LinearAlgebraBackground_ManimCE_v0.19.0.png" : "LinearAlgebraBackground_ManimCE_v0.19.0_white.png"} alt="Linear Algebra" className="full-image" />
         </Link>
         <Link to="/probability" className="image-box">
-          <img src="/ProbabilityBackground_ManimCE_v0.19.0.png" alt="Probability" className="full-image" />
+          <img src={isDarkMode ? "/ProbabilityBackground_ManimCE_v0.19.0.png" : "ProbabilityBackground_ManimCE_v0.19.0_white.png"} alt="Probability" className="full-image" />
         </Link>
         <Link to="/statistics" className="image-box">
-          <img src="/StatisticsBackground_ManimCE_v0.19.0.png" alt="Statistics" className="full-image" />
+          <img src={isDarkMode ? "/StatisticsBackground_ManimCE_v0.19.0.png" : "StatisticsBackground_ManimCE_v0.19.0_white.png"}  alt="Statistics" className="full-image" />
         </Link>
         <Link className="image-box" onClick={() => handleNavigateWithAnimation(`/toolsHub/${userId}`)}>
-          <img src="/ToolsAndVisualCalculators_ManimCE_v0.19.0.png" alt="Other Tools" className="full-image" />
-
+          <img src={isDarkMode ? "/ToolsAndVisualCalculators_ManimCE_v0.19.0.png" : "ToolsAndVisualCalculators_ManimCE_v0.19.0_white.png" } alt="Other Tools" className="full-image" />
+         
         </Link>
       </div>
     </div>

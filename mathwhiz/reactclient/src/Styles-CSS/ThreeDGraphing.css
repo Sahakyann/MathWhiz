@@ -1,67 +1,105 @@
 .graph-container {
     display: flex;
     height: 100vh;
-    background-color: #121212;
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
+    width: 100%;
+    background-color: #1c1c1c;
+    color: white;
 }
 
 .sidebar-graph {
-    width: 400px;
-    min-width: 350px;
+    width: 300px;
+    padding: 20px;
     background-color: #1E1E1E;
-    padding: 25px;
     overflow-y: auto;
-    border-right: 2px solid #333;
-    display: flex;
-    flex-direction: column;
+}
+
+.color-picker {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 6px;
+    background-image: none;
+}
+.color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border-radius: 6px;
+}
+
+.color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
 }
 
 .input-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
-.input-group input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #555;
-    background-color: #333;
-    color: #ffffff;
-    outline: none;
-    font-size: 16px;
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
-.input-group button {
-    margin-left: 8px;
-    padding: 7px;
-    border-radius: 6px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.add-button, .plot-button {
+.input-group input[type="text"] {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 12px;
-    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 10px;
     border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.add-button {
+    border-radius: 4px;
+    background-color: #3c3c3c;
     color: white;
 }
 
-.plot-area {
-    flex: 1;
+
+
+.function-buttons {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+
+body.dark-mode .plot-area {
+    background-color: #111;
+}
+
+body.light-mode .plot-area {
+    background-color: #ffffff;
+}
+body.dark-mode .graph-container {
+    background-color: #1c1c1c;
+    color: white;
+}
+
+body.light-mode .graph-container {
+    background-color: #f9f9f9;
+    color: #111;
+}
+
+body.dark-mode .sidebar-graph {
+    background-color: #1e1e1e;
+}
+
+body.light-mode .sidebar-graph {
+    background-color: #ffffff;
+    border-right: 1px solid #ccc;
+}
+
+body.dark-mode .sidebar-graph input[type="text"],
+body.dark-mode .mq-editable-field {
+    background-color: #3c3c3c;
+    color: white;
+}
+
+body.light-mode .sidebar-graph input[type="text"],
+body.light-mode .mq-editable-field {
+    background-color: #ffffff;
+    color: #111;
+    border: 1px solid #ccc;
 }

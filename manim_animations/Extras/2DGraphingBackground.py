@@ -5,16 +5,16 @@ config.frame_size = (1080, 1920)
 
 class TwoDGraphingBackground(Scene):
     def construct(self):
-
+        self.camera.background_color = WHITE
         grid = NumberPlane(
             x_range=[-6, 6, 1],
             y_range=[-10, 10, 1],
             x_length=20,
             y_length=25,      
-            axis_config={"color": WHITE}
+            axis_config={"color": BLACK}
         )
         grid.background_lines.set_color(LOGO_BLUE)
-        grid_title = Tex("2D Graphing", font_size=210, color=WHITE)
+        grid_title = Tex("2D Graphing", font_size=210, color=LOGO_BLUE)
         grid_title.center()
 
         self.add(grid, grid_title)

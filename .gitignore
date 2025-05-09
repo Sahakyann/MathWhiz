@@ -64,7 +64,12 @@ python_script_testing
 
 /generator.txt
 /mathwhiz/aspnetserver/appsettings.json
+/mathwhiz/aspnetserver/appsettings.Development.json
 /mathwhiz/aspnetserver/RequestHashes.json
+/mathwhiz/aspnetserver/efpt.config.json
 
 /mathwhiz/aspnetserver/wwwroot/
 /mathwhiz/aspnetserver/migrations/
+
+
+

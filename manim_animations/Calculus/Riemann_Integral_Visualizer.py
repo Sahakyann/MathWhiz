@@ -52,11 +52,12 @@ class GetRiemannRectangles(Scene):
         ).add_coordinates()
 
         function_label = (
-            MathTex("f(x)=",latex_function)   
+            MathTex(r"\int_{%s}^{%s} %s \, dx" % (integral_from, integral_to, latex_function))   
             .to_edge(UL)
             .set_color(BLUE)
             .scale(0.6)
         )
+        
 
         x = sp.symbols('x')
         symbolic_expr = sp.sympify(sympy_function, evaluate=False)
@@ -70,14 +71,22 @@ class GetRiemannRectangles(Scene):
         previous_x = xMin
 
         for singularity in singular_points:
-            if previous_x < singularity - 0.01:
-                plot_intervals.append((previous_x, singularity - 0.01))
-            previous_x = singularity + 0.01
+            if previous_x < singularity - 0.05:
+                plot_intervals.append((previous_x, singularity - 0.05))
+            previous_x = singularity + 0.05
 
         if previous_x < xMax:
             plot_intervals.append((previous_x, xMax))
 
-       
+
+        for singularity in singular_points:
+            dashed_line = DashedLine(
+            start=axes.c2p(singularity, yMin-10),
+            end=axes.c2p(singularity, yMax+10),
+            color=RED,
+            dash_length=0.1)
+            self.add(dashed_line)
+
         graphs = []
         for start, end in plot_intervals:
             graph_segment = axes.plot(func, x_range=(start, end, xStep), color=YELLOW)
@@ -88,9 +97,9 @@ class GetRiemannRectangles(Scene):
         previous_x = integral_from
 
         for singularity in singular_points:
-            if previous_x < singularity - 0.01:
-                integration_intervals.append((previous_x, singularity - 0.01))
-            previous_x = singularity + 0.01
+            if previous_x < singularity - 0.05:
+                integration_intervals.append((previous_x, singularity - 0.05))
+            previous_x = singularity + 0.05
 
         if previous_x < integral_to:
             integration_intervals.append((previous_x, integral_to))

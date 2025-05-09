@@ -13,6 +13,7 @@ namespace aspnetserver.Data
         [JsonIgnore]
         public string RequestHash { get; private set; }
         public abstract string GenerateUniqueFileName(RequestType type);
+        public bool screenshot_only { get; set; }
 
         public void AssignRequestHash()
         {
@@ -54,7 +55,8 @@ namespace aspnetserver.Data
             LinearTransformation = 3,
             TaylorSeries = 4,
             NewtonsMethod = 5,
-            Eigenvectors = 6
+            Eigenvectors = 6,
+            MatrixMultiplication = 7,
         }
     }
 }

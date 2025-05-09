@@ -11,6 +11,7 @@ namespace aspnetserver.Data.Structures
         public float integral_to { get; set; }
 
 
+
         public FunctionIntegralRequest(string latex_function, float? xMin, float? xMax, float? yMin, float? yMax, float xStep, float yStep, float integral_dx, float integral_from, float integral_to) : base(latex_function, xMin, xMax, yMin, yMax)
         {
             this.xStep = xStep;

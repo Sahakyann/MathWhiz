@@ -16,7 +16,15 @@ namespace aspnetserver.Data.Structures
         public MathFunction(string latexFunction)
         {
             sympyMathFunction = LatexToSympy(latexFunction);
-            NumericFunction = CompileFunction(LatexToCSharp(latexFunction));
+            string functionString = LatexToCSharp(latexFunction);
+            if (functionString != null)
+            {
+                NumericFunction = CompileFunction(functionString);
+            }
+            else
+            {
+                NumericFunction = CompileFunction("x");
+            }
         }
 
         private static string LatexToSympy(string latexFunction)
@@ -91,6 +99,7 @@ namespace aspnetserver.Data.Structures
             {
                 var expression = new Expression(functionString);
                 expression.Parameters["x"] = x;
+                Console.WriteLine(expression.Evaluate());
                 return Convert.ToDouble(expression.Evaluate());
             };
         }
@@ -100,6 +109,72 @@ namespace aspnetserver.Data.Structures
             return NumericFunction(value);
         }
 
+        public double NumericalIntegration(double a, double b, int n = 1000, IntegrationMethod method = IntegrationMethod.Trapezoidal)
+        {
+            double h = (b - a) / n;
+            double result = 0.0;
+
+            switch (method)
+            {
+                case IntegrationMethod.Midpoint:
+                    for (int i = 0; i < n; i++)
+                    {
+                        double xMid = a + h * (i + 0.5);
+                        result += NumericFunction(xMid);
+                    }
+                    result *= h;
+                    break;
+
+                case IntegrationMethod.Trapezoidal:
+                    result = 0.5 * (NumericFunction(a) + NumericFunction(b));
+                    for (int i = 1; i < n; i++)
+                    {
+                        double x = a + i * h;
+                        result += NumericFunction(x);
+                    }
+                    result *= h;
+                    break;
+
+                case IntegrationMethod.Simpson:
+                    if (n % 2 != 0) n++;
+                    h = (b - a) / n;
+                    double sum1 = 0.0;
+                    double sum2 = 0.0;
+                    for (int i = 1; i < n; i += 2)
+                    {
+                        double x = a + i * h;
+                        try
+                        {
+                            Console.WriteLine(x);
+                            sum1 += NumericFunction(x);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            throw new InvalidOperationException($"Error evaluating NumericFunction at x={x}: {ex.Message}", ex);
+                        }
+                    }
+                    for (int i = 2; i < n - 1; i += 2)
+                    {
+                        double x = a + i * h;
+                        sum2 += NumericFunction(x);
+                    }
+                    result = (NumericFunction(a) + 4 * sum1 + 2 * sum2 + NumericFunction(b)) * h / 3;
+                    break;
+
+                default:
+                    throw new ArgumentException("Unknown integration method.");
+            }
+
+            return result;
+        }
+
+        public enum IntegrationMethod : byte
+        {
+            Trapezoidal = 0,
+            Midpoint = 1,
+            Simpson = 2
+        }
         // TODO: Create a numerical method to calculate integrals (Like Simpson's method)
 
         /* Unsafe implementation, this misuses a data table as a calculator

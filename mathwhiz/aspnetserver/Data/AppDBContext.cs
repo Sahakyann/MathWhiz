@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using aspnetserver.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace mathwhiz.Data
 {
@@ -7,6 +8,7 @@ namespace mathwhiz.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserSavedAsset> SavedAssets { get; set; }
+        public DbSet<UserFavorite> UserFavorites { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder dbContextOptionsBuilder) => dbContextOptionsBuilder.UseSqlServer("Server=localhost;Database=master;Trusted_Connection=True;TrustServerCertificate=True");
 
@@ -27,6 +29,18 @@ namespace mathwhiz.Data
                     user_bio = $"My name is Giorgio, but everybody calls me User{i}"
                 };
             }
+
+            modelBuilder.Entity<UserFavorite>()
+               .HasOne(f => f.User)
+               .WithMany()
+               .HasForeignKey(f => f.UserId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<UserFavorite>()
+                .HasOne(f => f.UserAsset)
+                .WithMany()
+                .HasForeignKey(f => f.AssetId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

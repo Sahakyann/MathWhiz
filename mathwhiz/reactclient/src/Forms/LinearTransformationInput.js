@@ -1,7 +1,7 @@
 import { EditableMathField } from "react-mathquill";
 import React from "react";
 
-export function LinearTransformationInput({ matrixA, setMatrixA, matrixB, setMatrixB, matrixC, setMatrixC, matrixD, setMatrixD, vectors, setVectors }) {
+export function LinearTransformationInput({ selectedType, matrixA, setMatrixA, matrixB, setMatrixB, matrixC, setMatrixC, matrixD, setMatrixD, vectors, setVectors }) {
     const addVector = () => {
         setVectors([...vectors, [0, 0]]);
     };
@@ -18,7 +18,12 @@ export function LinearTransformationInput({ matrixA, setMatrixA, matrixB, setMat
 
     return (
         <div className="side-input-container">
-            <h2>Linear Transformation Visualization</h2>
+
+            <h2>
+                {selectedType === "eigenvector-visualizer"
+                    ? "Eigenvector Visualization"
+                    : "Linear Transformation Visualization"}
+            </h2>
 
 
             <h3>Transformation Matrix</h3>

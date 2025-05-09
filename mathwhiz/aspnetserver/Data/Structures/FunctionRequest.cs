@@ -42,6 +42,7 @@ namespace aspnetserver.Data.Structures
         {
             return $"{type}_{RequestHash}";
         }
-       
+        
+
     }
 }

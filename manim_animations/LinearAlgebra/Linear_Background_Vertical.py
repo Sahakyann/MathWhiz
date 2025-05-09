@@ -5,6 +5,7 @@ config.frame_size = (1080, 1920)
 
 class LinearAlgebraBackground(Scene):
     def construct(self):
+        #self.camera.background_color = WHITE
         title = Text("Linear").next_to([-1.2, 9.3, 0]).set_color(color_gradient([PURPLE, TEAL], 2)).scale(3.4)
         bottom_title = Text("Algebra").next_to(title,DOWN,buff=1).set_color(color_gradient([PURPLE, TEAL], 2)).scale(3.4)
         vector_def = MathTex(r"\vec{v} = \begin{bmatrix} x \\ y \end{bmatrix}").next_to(bottom_title, DOWN, buff=2).scale(2).set_color(color_gradient([TEAL,PURPLE], 2))
@@ -22,7 +23,7 @@ class LinearAlgebraBackground(Scene):
                 "stroke_width": 1,
                 "stroke_opacity": 0.4
             }
-        ).set_opacity(0.8)
+        ).set_opacity(0.8)#.set_color(BLUE)
 
       
         vec1 = Arrow(start=plane.c2p(0, 0), end=plane.c2p(3, 2), buff=0, color=YELLOW)

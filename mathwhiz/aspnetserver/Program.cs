@@ -22,6 +22,7 @@ using System.Security.Claims;
 using aspnetserver.Data.Structures;
 using aspnetserver.Data;
 using Azure.Core;
+using static aspnetserver.Data.Structures.MathFunction;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,10 +38,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials()
-            .WithOrigins("http://localhost:3000", "https://localhost:7160", "https://appname.azurestaticapps.net");
+            .WithOrigins("http://localhost:3000", "https://localhost:7160", "https://localhost:7299", "https://appname.azurestaticapps.net", "https://d49c-5-77-203-224.ngrok-free.app");
         });
 
 });
+
 
 // Extract the JWT key from appsettings, or if not specified, get the environment variable
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"] ??
@@ -82,7 +84,7 @@ builder.Services.AddSwaggerGen(swaggerGenOptions =>
 {
     swaggerGenOptions.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Posts", Version = "v1" });
 });
-
+builder.Services.AddHttpClient<ChatGPTService>();
 var app = builder.Build();
 
 
@@ -93,29 +95,39 @@ app.UseSwaggerUI(swaggerUIOptions =>
 {
     swaggerUIOptions.DocumentTitle = "Posts";
     swaggerUIOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API");
-    swaggerUIOptions.RoutePrefix = string.Empty;
+    swaggerUIOptions.RoutePrefix = "swagger"; // string.Empty
 });
 app.UseCors("CORSPolicy");
+app.UseStaticFiles();
+app.UseDefaultFiles();
+app.UseRouting();
+
 app.UseWebSockets();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
+app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
 
 
 
 app.MapPost("/api/get-function-integral/{userId}", async (FunctionIntegralRequest request, int userId) =>
 {
-    string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Riemann_Integral_Visualizer\\1080p60";
-    await Console.Out.WriteLineAsync($"Integral Request received from User Id: {userId}");
+    string videoOutputDir = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Riemann_Integral_Visualizer\\1080p60";
+    //string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Riemann_Integral_Visualizer\\1080p60";
+    string imageOutputDir = "G:\\Capstone\\manim_animations\\Calculus\\media\\images\\Riemann_Integral_Visualizer";
+    
     string pythonScriptName = "Riemann_Integral_Visualizer.py";
     ManimRequest.RequestType type = ManimRequest.RequestType.Integral;
 
+    await Console.Out.WriteLineAsync($"Integral Request received from User Id: {userId}");
+    string extension = request.screenshot_only == true ? "png" : "mp4";
+    string outputDirectory = request.screenshot_only == true ? imageOutputDir : videoOutputDir;
     try
     {
-        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4", userId);
+        
+        await Console.Out.WriteLineAsync("Screenshot Only: " + request.screenshot_only);
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, extension, userId);
         if (cachedFile != null)
         {
             return cachedFile; 
@@ -123,7 +135,7 @@ app.MapPost("/api/get-function-integral/{userId}", async (FunctionIntegralReques
         
         await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
         Console.WriteLine(request.ToString());
-        var (output, error,outputFileName) = await PythonScripts.RunPythonScript(request, FunctionRequest.scriptPathCalculus, pythonScriptName, type,"mp4",outputDirectory, userId);
+        var (output, error,outputFileName) = await PythonScripts.RunPythonScript(request, FunctionRequest.scriptPathCalculus, pythonScriptName, type,extension,outputDirectory, userId,request.screenshot_only);
         string outputFile = Path.Combine(outputDirectory, outputFileName);
 
         Console.WriteLine("Output:\n" + output);
@@ -138,8 +150,18 @@ app.MapPost("/api/get-function-integral/{userId}", async (FunctionIntegralReques
         }
 
 
+        /*
+         * Server side function evaluation, does not work currently
+         * double integralValue = request.mathfunction.NumericalIntegration(
+          request.integral_from,
+          request.integral_to,
+          10,
+          IntegrationMethod.Simpson
+        );*/
+
         var fileBytes = await File.ReadAllBytesAsync(outputFile);
-        return Results.File(fileBytes, "video/mp4", outputFileName);
+        string mimeType = request.screenshot_only == true ? "image/png" : "video/mp4";
+        return Results.File(fileBytes, mimeType, outputFileName);
     }
     catch (Exception ex)
     {
@@ -147,28 +169,35 @@ app.MapPost("/api/get-function-integral/{userId}", async (FunctionIntegralReques
     }
 });
 
-app.MapPost("/api/get-linear-transformation/{userId}", async (LinearAlgebraRequest request, int userId) =>
+app.MapPost("/api/get-matrix-multiplication/{userId}", async (LinearAlgebraRequest request, int userId) =>
 {
-    
-    string outputDirectory = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\Vector_transformations\\1080p60";
-    await Console.Out.WriteLineAsync($"Linear Transformation Request received from User Id: {userId}");
-    string pythonScriptName = "Vector_transformations.py";
- 
-    ManimRequest.RequestType type = ManimRequest.RequestType.LinearTransformation;
+    string imageOutputDir = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\images\\MatrixMultiplication";
+    string videoOutputDir = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\MatrixMultiplication\\1080p60";
+
+    //string outputDirectory = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\MatrixMultiplication\\1080p60";
+    await Console.Out.WriteLineAsync($"Matrix Multiplication Request received from User Id: {userId}");
+
+    string pythonScriptName = "MatrixMultiplication.py";
+    ManimRequest.RequestType type = ManimRequest.RequestType.MatrixMultiplication;
+    bool screenshot_only = request.screenshot_only == true;
+    string fileExtension = screenshot_only ? "png" : "mp4";
+    string outputDirectory = screenshot_only
+        ? imageOutputDir
+        : videoOutputDir;
 
     try
     {
-        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4", userId);
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, fileExtension, userId);
         if (cachedFile != null)
         {
             return cachedFile;
         }
-       
+
         await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
         Console.WriteLine(request.ToString());
 
         var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
-            request, LinearAlgebraRequest.scriptPath, pythonScriptName, type, "mp4", outputDirectory,userId
+            request, LinearAlgebraRequest.scriptPath, pythonScriptName, type, fileExtension, outputDirectory, userId, screenshot_only
         );
 
         string outputFile = Path.Combine(outputDirectory, outputFileName);
@@ -185,7 +214,66 @@ app.MapPost("/api/get-linear-transformation/{userId}", async (LinearAlgebraReque
         }
 
         var fileBytes = await File.ReadAllBytesAsync(outputFile);
-        return Results.File(fileBytes, "video/mp4", outputFileName);
+        string mimeType = screenshot_only ? "image/png" : "video/mp4";
+        return Results.File(fileBytes, mimeType, outputFileName);
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { Success = false, Message = ex.Message });
+    }
+});
+
+
+app.MapPost("/api/get-linear-transformation/{userId}", async (LinearAlgebraRequest request, int userId) =>
+{
+
+    //string outputDirectory = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\Vector_transformations\\1080p60";
+    string imageOutputDir = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\images\\Vector_transformations";
+    string videoOutputDir = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\Vector_transformations\\1080p60";
+    await Console.Out.WriteLineAsync($"Linear Transformation Request received from User Id: {userId}");
+    string pythonScriptName = "Vector_transformations.py";
+
+    bool screenshot_only = request.screenshot_only == true;
+
+    string fileExtension = screenshot_only ? "png" : "mp4";
+    string outputDirectory = screenshot_only
+        ? imageOutputDir
+        : videoOutputDir;
+
+    ManimRequest.RequestType type = ManimRequest.RequestType.LinearTransformation;
+
+    try
+    {
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, fileExtension, userId);
+        if (cachedFile != null)
+        {
+            return cachedFile;
+        }
+       
+        await request.SaveJsonRepresentationAsync(type, ManimRequest.RequestJsonFilePath);
+        Console.WriteLine(request.ToString());
+
+        var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
+            request, LinearAlgebraRequest.scriptPath, pythonScriptName, type, fileExtension, outputDirectory,userId, screenshot_only
+        );
+
+        string outputFile = Path.Combine(outputDirectory, outputFileName);
+        Console.WriteLine("Output:\n" + output);
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            Console.WriteLine("Errors:\n" + error);
+        }
+
+        if (!File.Exists(outputFile))
+        {
+            return Results.BadRequest(new { Success = false, Message = $"Error generating video: {error}" });
+        }
+
+
+        var fileBytes = await File.ReadAllBytesAsync(outputFile);
+        string mimeType = screenshot_only ? "image/png" : "video/mp4";
+        return Results.File(fileBytes, mimeType, outputFileName);
     }
     catch (Exception ex)
     {
@@ -195,16 +283,22 @@ app.MapPost("/api/get-linear-transformation/{userId}", async (LinearAlgebraReque
 
 app.MapPost("/api/get-eigenvector-visualizer/{userId}", async (LinearAlgebraRequest request, int userId) =>
 {
-
-    string outputDirectory = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\Eigenvectors\\1080p60";
+    string imageOutputDir = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\images\\Eigenvectors";
+    string videoOutputDir = "G:\\Capstone\\manim_animations\\LinearAlgebra\\media\\videos\\Eigenvectors\\1080p60";
     await Console.Out.WriteLineAsync($"Eigenvector Visualizer Request received from User Id: {userId}");
     string pythonScriptName = "Eigenvectors.py";
   
     ManimRequest.RequestType type = ManimRequest.RequestType.Eigenvectors;
 
+    bool screenshot_only = request.screenshot_only == true;
+
+    string fileExtension = screenshot_only ? "png" : "mp4";
+    string outputDirectory = screenshot_only
+        ? imageOutputDir
+        : videoOutputDir;
     try
     {
-        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4", userId);
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, fileExtension, userId);
         if (cachedFile != null)
         {
             return cachedFile;
@@ -214,7 +308,7 @@ app.MapPost("/api/get-eigenvector-visualizer/{userId}", async (LinearAlgebraRequ
         Console.WriteLine(request.ToString());
 
         var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
-            request, LinearAlgebraRequest.scriptPath, pythonScriptName, type, "mp4", outputDirectory, userId
+            request, LinearAlgebraRequest.scriptPath, pythonScriptName, type, fileExtension, outputDirectory, userId, screenshot_only
         );
 
         string outputFile = Path.Combine(outputDirectory, outputFileName);
@@ -231,7 +325,8 @@ app.MapPost("/api/get-eigenvector-visualizer/{userId}", async (LinearAlgebraRequ
         }
 
         var fileBytes = await File.ReadAllBytesAsync(outputFile);
-        return Results.File(fileBytes, "video/mp4", outputFileName);
+        string mimeType = screenshot_only ? "image/png" : "video/mp4";
+        return Results.File(fileBytes, mimeType, outputFileName);
     }
     catch (Exception ex)
     {
@@ -241,13 +336,23 @@ app.MapPost("/api/get-eigenvector-visualizer/{userId}", async (LinearAlgebraRequ
 
 app.MapPost("/api/get-newtons-method/{userId}", async (NumericalRequest request, int userId) =>
 {
-    string outputDirectory = "G:\\Capstone\\manim_animations\\Numerical\\media\\videos\\Newtons_Method_Visualizer\\1080p60";
+    string imageOutputDir = "G:\\Capstone\\manim_animations\\Numerical\\media\\images\\Newtons_Method_Visualizer";
+    string videoOutputDir = "G:\\Capstone\\manim_animations\\Numerical\\media\\videos\\Newtons_Method_Visualizer\\1080p60";
+
+    //string outputDirectory = "G:\\Capstone\\manim_animations\\Numerical\\media\\videos\\Newtons_Method_Visualizer\\1080p60";
     await Console.Out.WriteLineAsync($"Newtons Method Request received from User Id: {userId}");
     string pythonScriptName = "Newtons_Method_Visualizer.py";
+
+    bool screenshot_only = request.screenshot_only == true;
+
+    string fileExtension = screenshot_only ? "png" : "mp4";
+    string outputDirectory = screenshot_only
+        ? imageOutputDir
+        : videoOutputDir;
     ManimRequest.RequestType type = ManimRequest.RequestType.NewtonsMethod;
     try
     {     
-        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4", userId);
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, fileExtension, userId);
         if (cachedFile != null)
         {
             return cachedFile;
@@ -257,7 +362,7 @@ app.MapPost("/api/get-newtons-method/{userId}", async (NumericalRequest request,
         Console.WriteLine(request.ToString());
       
         var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
-            request, NumericalRequest.scriptPathNumerical, pythonScriptName, type, "mp4", outputDirectory,userId
+            request, NumericalRequest.scriptPathNumerical, pythonScriptName, type, fileExtension, outputDirectory,userId, screenshot_only
         );
 
         string outputFile = Path.Combine(outputDirectory, outputFileName);
@@ -275,7 +380,8 @@ app.MapPost("/api/get-newtons-method/{userId}", async (NumericalRequest request,
         }
 
         var fileBytes = await File.ReadAllBytesAsync(outputFile);
-        return Results.File(fileBytes, "video/mp4", outputFileName);
+        string mimeType = screenshot_only ? "image/png" : "video/mp4";
+        return Results.File(fileBytes, mimeType, outputFileName);
     }
     catch (Exception ex)
     {
@@ -326,14 +432,21 @@ app.MapPost("/api/get-newtons-method/{userId}", async (NumericalRequest request,
 
 app.MapPost("/api/get-taylor-series/{userId}", async (TaylorSeriesRequest request,int userId) =>
 {
-    string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Taylor_Series_Visualizer\\1080p60";
+    string videoOutputDir = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Taylor_Series_Visualizer\\1080p60";
+    string imageOutputDir = "G:\\Capstone\\manim_animations\\Calculus\\media\\images\\Taylor_Series_Visualizer";
+    //string outputDirectory = "G:\\Capstone\\manim_animations\\Calculus\\media\\videos\\Taylor_Series_Visualizer\\1080p60";
     await Console.Out.WriteLineAsync($"Taylor Series Request received from User Id: {userId}");
     string pythonScriptName = "Taylor_Series_Visualizer.py";
     ManimRequest.RequestType type = ManimRequest.RequestType.TaylorSeries;
+    bool screenshot_only = request.screenshot_only == true;
 
+    string fileExtension = screenshot_only ? "png" : "mp4";
+    string outputDirectory = screenshot_only
+        ? imageOutputDir
+        : videoOutputDir;
     try
     {
-        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, "mp4", userId);
+        IResult? cachedFile = await request.GetCachedFileAsync(type, outputDirectory, fileExtension, userId);
         if (cachedFile != null)
         {
             return cachedFile;
@@ -343,7 +456,7 @@ app.MapPost("/api/get-taylor-series/{userId}", async (TaylorSeriesRequest reques
         Console.WriteLine(request.ToString());
 
         var (output, error, outputFileName) = await PythonScripts.RunPythonScript(
-            request, FunctionRequest.scriptPathCalculus, pythonScriptName, type, "mp4", outputDirectory,userId
+            request, FunctionRequest.scriptPathCalculus, pythonScriptName, type, fileExtension, outputDirectory,userId, screenshot_only
         );
 
         string outputFile = Path.Combine(outputDirectory, outputFileName);
@@ -360,7 +473,8 @@ app.MapPost("/api/get-taylor-series/{userId}", async (TaylorSeriesRequest reques
         }
 
         var fileBytes = await File.ReadAllBytesAsync(outputFile);
-        return Results.File(fileBytes, "video/mp4", outputFileName);
+        string mimeType = screenshot_only ? "image/png" : "video/mp4";
+        return Results.File(fileBytes, mimeType, outputFileName);
     }
     catch (Exception ex)
     {
@@ -778,6 +892,58 @@ app.MapGet("/api/get-background-picture/{userId}", async (HttpContext context, i
 
 });
 
+app.MapGet("/api/user-favorites/{userId}", async (HttpContext context, int userId) =>
+{
+    var favorites = await UsersRepository.GetUserFavoriteAssetsAsync(userId);
+    return Results.Ok(favorites.Select(f => f.AssetId));
+});
+
+app.MapPost("/api/user-favorites/{userId}/{assetId}", async (HttpContext context, int userId, int assetId) =>
+{
+    var added = await UsersRepository.AddFavoriteAsync(userId, assetId);
+    return Results.Ok(new { success = added });
+});
+
+app.MapDelete("/api/user-favorites/{userId}/{assetId}", async (HttpContext context, int userId, int assetId) =>
+{
+    var removed = await UsersRepository.RemoveFavoriteAsync(userId, assetId);
+    return removed
+        ? Results.Ok(new { success = true })
+        : Results.NotFound(new { message = "Favorite not found" });
+});
+
+app.MapPost("/api/get-ai-explanation", async (HttpContext context, ChatGPTService chatGPTService) =>
+{
+    try
+    {
+        var request = await context.Request.ReadFromJsonAsync<ExplanationRequest>();
+        if (request == null || request.UserId <= 0)
+            return Results.BadRequest("Invalid user ID.");
+
+        if (!VisualizationCache.Contains(request.UserId))
+            return Results.NotFound("No visualization found for the current user.");
+
+        var mp4Path = VisualizationCache.Get(request.UserId);
+        if (string.IsNullOrEmpty(mp4Path))
+            return Results.BadRequest("Cached file path missing.");
+
+        var jsonFileName = Path.GetFileNameWithoutExtension(mp4Path) + ".json";
+        var jsonPath = Path.Combine("G:\\Capstone\\manim_animations\\RequestJsonTempFiles", jsonFileName);
+
+        if (!File.Exists(jsonPath))
+            return Results.NotFound("Input JSON file not found.");
+
+        var jsonContent = await File.ReadAllTextAsync(jsonPath);
+        var explanation = await chatGPTService.GenerateExplanationAsync(jsonContent);
+
+        return Results.Ok(new { explanation });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem("An error occurred: " + ex.Message);
+    }
+});
+
 static string? ValidateJwt(HttpContext context, string jwtKey)
 {
     var jwtCookie = context.Request.Cookies["jwt"];
@@ -821,5 +987,7 @@ static string? ValidateJwt(HttpContext context, string jwtKey)
         return null;
     }
 }
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -4,11 +4,11 @@ import { evaluate, compile } from "mathjs";
 import { addStyles, EditableMathField } from "react-mathquill";
 import "./Styles-CSS/2dGraphing.css";
 import { parseLatexToMath, fixMultiplication } from "./LatexParserNew"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 addStyles();
 
-const GraphingCalculator = () => {
+const GraphingCalculator = ({ isDarkMode }) => {
     const [expressions, setExpressions] = useState(["x^2", "sin(x)"]);
     const [data, setData] = useState([]);
     const [dragMode, setDragMode] = useState("pan");
@@ -16,7 +16,7 @@ const GraphingCalculator = () => {
     const [yRange, setYRange] = useState([-10, 10]);
     const plotRef = useRef(null);
     const navigate = useNavigate();
-
+    const { userId } = useParams();
     const [isPanning, setIsPanning] = useState(false);
     const [lastMousePos, setLastMousePos] = useState(null);
 
@@ -46,13 +46,13 @@ const GraphingCalculator = () => {
             const resolution = 1000;
             let step = (xRange[1] - xRange[0]) / resolution;
             let xValues = Array.from({ length: resolution }, (_, i) => xRange[0] + i * step);
-    
+
             let graphData = expressions.map((expr, index) => {
                 try {
                     let node = parseLatexToMath(expr);
                     let compiledExpr = compile(node);
                     let yValues = xValues.map(x => compiledExpr.evaluate({ x }));
-    
+
                     return {
                         x: xValues,
                         y: yValues,
@@ -66,7 +66,7 @@ const GraphingCalculator = () => {
                     return null;
                 }
             }).filter(item => item !== null);
-    
+
             setData(graphData);
         } catch (error) {
             console.error("Invalid function(s)", error);
@@ -143,15 +143,15 @@ const GraphingCalculator = () => {
                                 newExpr[i] = mathField.latex();
                                 setExpressions(newExpr);
                             }}
-                            style={{ backgroundColor: "#333", color: "white", padding: "8px", borderRadius: "5px", width: "100%" }}
+                            style={{  padding: "8px", borderRadius: "5px", width: "100%" }}
                         />
                         <button onClick={() => setExpressions(expressions.filter((_, index) => index !== i))}>
-                            ❌
+                            ✕
                         </button>
                     </div>
                 ))}
                 <button className="add-button" onClick={() => setExpressions([...expressions, ""])}>Add Function</button>
-                <button className="transparent-button" onClick={() => navigate('/toolsHub')}>
+                <button className="transparent-button" onClick={() => navigate(`/toolsHub/${userId}`)}>
                     Back to Tools
                 </button>
             </div>
@@ -162,13 +162,21 @@ const GraphingCalculator = () => {
                     data={data}
                     layout={{
                         title: "Graphing Calculator",
-                        xaxis: { title: "x", range: xRange, zeroline: true, gridcolor: "#444", color: "#ffffff" },
-                        yaxis: { title: "y", range: yRange, zeroline: true, gridcolor: "#444", color: "#ffffff" },
-                        plot_bgcolor: "#121212",
-                        paper_bgcolor: "#121212",
+                        xaxis: {
+                            title: "x", range: xRange, zeroline: true,
+                            gridcolor: isDarkMode ? "#444" : "#ddd",
+                            color: isDarkMode ? "#fff" : "#111",
+                        },
+                        yaxis: {
+                            title: "y", range: yRange, zeroline: true,
+                            gridcolor: isDarkMode ? "#444" : "#ddd",
+                            color: isDarkMode ? "#fff" : "#111",
+                        },
+                        plot_bgcolor: isDarkMode ? "#121212" : "#ffffff",
+                        paper_bgcolor: isDarkMode ? "#121212" : "#ffffff",
                         dragmode: dragMode,
                         autosize: true,
-                        font: { color: "#ffffff" }
+                        font: { color: isDarkMode ? "#ffffff" : "#111111" }
                     }}
                     style={{ width: "100%", height: "100%" }}
                 />
