@@ -114,11 +114,20 @@ export default function VisualCalculators({ isDarkMode }) {
 
     const [matrixA_mm, setMatrixA_mm] = useState([[1, 2], [3, 4]]);
     const [matrixB_mm, setMatrixB_mm] = useState([[5, 6], [7, 8]]);
-    const resultMatrix = matrixA_mm.map((row, i) =>
-        matrixB_mm[0].map((_, j) =>
-            row.reduce((sum, val, k) => sum + val * matrixB_mm[k][j], 0)
-        )
-    );
+    let resultMatrix = [];
+    if (
+        Array.isArray(matrixA_mm) &&
+        Array.isArray(matrixB_mm) &&
+        matrixA_mm.length > 0 &&
+        matrixB_mm.length > 0 &&
+        matrixA_mm[0].length === matrixB_mm.length
+    ) {
+        resultMatrix = matrixA_mm.map((row, i) =>
+            matrixB_mm[0].map((_, j) =>
+                row.reduce((sum, val, k) => sum + val * matrixB_mm[k][j], 0)
+            )
+        );
+    }
 
     const [taylorPreview, setTaylorPreview] = useState("");
 
@@ -605,7 +614,7 @@ export default function VisualCalculators({ isDarkMode }) {
 
                         <div>
 
-                         
+
                             <button onClick={handleSubmit} disabled={loading || !showVideo}>
                                 {loading ? "Processing..." : "Generate"}
                             </button>

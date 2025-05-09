@@ -395,17 +395,26 @@ const UserProfile = () => {
             )).map((asset, index) => (
               <div className="asset-item" key={index}>
                 <div className="user-profile-video-wrapper">
-                  <video
-                    muted
-                    autoPlay
-                    loop
-                    playsInline
-                    className="asset-video"
-                    onClick={() => setSelectedVideo(asset)}
-                  >
-                    <source src={`${API_BASE_URL}${asset.saved_Asset}`} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                  {asset.saved_Asset.endsWith(".mp4") ? (
+                    <video
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
+                      className="asset-video"
+                      onClick={() => setSelectedVideo(asset)}
+                    >
+                      <source src={`${API_BASE_URL}${asset.saved_Asset}`} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <img
+                      src={`${API_BASE_URL}${asset.saved_Asset}`}
+                      alt="Saved Visualization"
+                      className="asset-video"
+                      onClick={() => setSelectedVideo(asset)}
+                    />
+                  )}
                   {authorized && (
                     <button
                       className="favorite-button"
@@ -429,19 +438,19 @@ const UserProfile = () => {
       {selectedVideo && (
         <div className="video-overlay" onClick={() => setSelectedVideo(null)}>
           <div className="video-popup" onClick={(e) => e.stopPropagation()}>
-            <>
-              {/*console.log(selectedVideo.fileName)*/}
-              <div className="filename-label">
-                <span>{selectedVideo.fileName} – Created at {selectedVideo.createdAt}</span>
-                {authorized && (
-                  <button className="delete-button" onClick={() => handleDeleteAsset(selectedVideo.assetId)}>
-                    Delete Video
-                  </button>
-                )}
-              </div>
+            <div className="filename-label">
+              <span>{selectedVideo.fileName} – Created at {selectedVideo.createdAt}</span>
+              {authorized && (
+                <button className="delete-button" onClick={() => handleDeleteAsset(selectedVideo.assetId)}>
+                  Delete
+                </button>
+              )}
+            </div>
+            {selectedVideo.saved_Asset.endsWith(".mp4") ? (
               <video src={`${API_BASE_URL}${selectedVideo.saved_Asset}`} autoPlay loop muted controls />
-
-            </>
+            ) : (
+              <img src={`${API_BASE_URL}${selectedVideo.saved_Asset}`} alt="Saved Visualization" />
+            )}
           </div>
         </div>
       )}

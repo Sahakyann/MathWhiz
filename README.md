@@ -146,3 +146,33 @@ Note: These changes are required because the official ManimCE does not currently
 - Central Limit Theorem
 - Law of Large Numbers
 - Newton's Method
+
+# Manim animations for various math topics
+manim_animations/
+├── Calculus/                 # Calculus Visualizations
+├── Extras/                   # Misc assets and other Manim outputs
+├── LinearAlgebra/            # Linear Algebra Visualizations
+├── Numerical/                # Newton’s method, gradient descent, etc.
+├── Probability/              # Probability visualizations
+├── RequestJsonTempFiles/     # JSON inputs from frontend
+└── Statistics/               # Statistics Visualizations
+
+# Main application folder
+mathwhiz/
+├── aspnetserver/             # ASP.NET Core backend API
+│   ├── Data/Structures/      # C# data models and DTOs
+│   ├── Migrations/           # Entity Framework migrations
+│   ├── Models/               # Entity and view model definitions
+│   ├── Properties/           # Project settings (e.g., launch configs)
+│   └── wwwroot/uploads/      # Public folder for uploaded/rendered files
+└── reactclient/              # React frontend for math learning platform
+    └── src/
+        ├── Forms/            # User input forms
+        ├── LessonComponents/ # JSX-based interactive lessons
+        │   ├── CalculusLessons/
+        │   ├── LinearLessons/
+        │   ├── Minigames/
+        │   ├── ProbabilityLessons/
+        │   └── StatisticsLessons/
+        ├── Styles-CSS/       # Custom styles or Tailwind overrides
+        └── SubmitHandlers/   # Logic for form submissions and API calls

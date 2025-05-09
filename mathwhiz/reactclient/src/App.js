@@ -37,7 +37,7 @@ import IntroToProbability from './LessonComponents/ProbabilityLessons/IntroToPro
 /* Statistics Imports */
 import Statistics from './Statistics';
 import IntroToStatistics from "./LessonComponents/StatisticsLessons/IntoToStatistics.js";
-import DataVisualization from  './LessonComponents/StatisticsLessons/DataVisualization.js';
+import DataVisualization from './LessonComponents/StatisticsLessons/DataVisualization.js';
 import ConvergenceTypes from "./LessonComponents/StatisticsLessons/TypesOfConvergence.js";
 import MSEBiasVariance from "./LessonComponents/StatisticsLessons/MSE_Bias.js";
 import EstimationMethods from "./LessonComponents/StatisticsLessons/MLE_MOM.js";
@@ -61,29 +61,35 @@ addMathQuillStyles();
 
 
 export default function App() {
+  // State variables for auth, user profile, UI theme, and search
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(localStorage.getItem("username") || "");
   const [userId, setUserId] = useState(localStorage.getItem("userID") || "");
+  const [profileImage, setProfileImage] = useState("/Koala.jpg");
+
+  // UI toggles
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isDetailView, setIsDetailView] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [profileImage, setProfileImage] = useState("/Koala.jpg");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") return false;
+    return true;
+  });
+
+  // Search state for lessons and users
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState(
     JSON.parse(localStorage.getItem("recentSearches") || "[]")
   );
   const navigate = useNavigate();
-
   const [userSearch, setUserSearch] = useState("");
   const [userResults, setUserResults] = useState([]);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light") return false;
-    return true;
-  });
+
+
 
   useEffect(() => {
     document.body.className = isDarkMode ? "dark-mode" : "light-mode";
@@ -91,23 +97,46 @@ export default function App() {
   }, [isDarkMode]);
 
   const searchItems = [
+    // Calculus Lessons
     { label: "Limits", path: "/calculus/limits" },
     { label: "Squeezing Theorem", path: "/calculus/squeezing" },
     { label: "LHopital's Rule", path: "/calculus/lhopital" },
     { label: "Integration", path: "/calculus/integration" },
-    { label: "Derivatives", path: "/calculus/derivatives" },
     { label: "Chain Rule", path: "/calculus/chainRule" },
+    { label: "Derivatives", path: "/calculus/derivatives" },
     { label: "Derivative Rules", path: "/calculus/derivativeRules" },
     { label: "Fundamental Theorem", path: "/calculus/ftc" },
     { label: "Higher Derivatives", path: "/calculus/higherDerivative" },
-    { label: "Calculus", path: "/calculus" },
-    { label: "Linear Algebra", path: "/linearalgebra" },
-    { label: "Probability", path: "/probability" },
-    { label: "Statistics", path: "/statistics" },
-    { label: "2D Graphing", path: "/twoDGraphing" },
-    { label: "3D Graphing", path: "/threeDGraphing" },
+    { label: "Calculus Overview", path: "/calculus" },
+
+    //  Linear Algebra Lessons
+    { label: "Vector Basics", path: "/linearalgebra/vectorBasics" },
+    { label: "Combination, Span, Basis", path: "/linearalgebra/combinationSpanBasis" },
+    { label: "Linear Transformation", path: "/linearalgebra/linearTransformation" },
+    { label: "Matrix Multiplication", path: "/linearalgebra/matrixMultiplication" },
+    { label: "Determinants", path: "/linearalgebra/determinants" },
+    { label: "Inverse Matrices", path: "/linearalgebra/inverseMatrices" },
+    { label: "Eigenvectors", path: "/linearalgebra/eigenvectors" },
+    { label: "Linear Algebra Overview", path: "/linearalgebra" },
+
+    //  Probability Lessons
+    { label: "Intro to Probability", path: "/probability/introProb" },
+    { label: "Probability Overview", path: "/probability" },
+
+    // Statistics Lessons
+    { label: "Intro to Statistics", path: "/statistics/introStat" },
+    { label: "Data Visualization", path: "/statistics/dataVis" },
+    { label: "Types of Convergence", path: "/statistics/convergenceTypes" },
+    { label: "MSE and Bias-Variance", path: "/statistics/mse-bias" },
+    { label: "Estimation Methods (MLE, MOM)", path: "/statistics/estimation-methods" },
+    { label: "Confidence Intervals", path: "/statistics/confidence-intervals" },
+    { label: "Statistics Overview", path: "/statistics" },
+
+    // Tools and Graphing
+    { label: "2D Graphing", path: "/twoDGraphing/:userId" },
+    { label: "3D Graphing", path: "/threeDGraphing/:userId" },
     { label: "Visual Calculators", path: "/visualCalculators/:userId" },
-    { label: "Tools Hub", path: "/toolsHub" }
+    { label: "Tools Hub", path: "/toolsHub/:userId" }
   ];
 
   const debouncedUserSearch = debounce(async (value) => {
@@ -433,7 +462,7 @@ export default function App() {
         {/* User Registration and Login Routes */}
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Registration />} />
-        <Route path="/" element={isLoggedIn ? <Home isDetailView={isDetailView} userId={userId} isDarkMode={isDarkMode}/> : <Navigate to="/login" />} />
+        <Route path="/" element={isLoggedIn ? <Home isDetailView={isDetailView} userId={userId} isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
         <Route path="/user/profile/:userId" element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />} />
 
 
@@ -477,7 +506,7 @@ export default function App() {
 
         { /* Graphing and Other Tool Routes */}
         {/*<Route path="/toolsHub" element={isLoggedIn ? <ToolsAndCalculators /> : <Navigate to="/login" />} />*/}
-        <Route path="/toolsHub/:userId" element={isLoggedIn ? <ToolsAndCalculators isDarkMode={isDarkMode}/> : <Navigate to="/login" />} />
+        <Route path="/toolsHub/:userId" element={isLoggedIn ? <ToolsAndCalculators isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
         <Route path="/twoDGraphing/:userId" element={isLoggedIn ? <TwoDGraphing isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
         <Route path="/threeDGraphing/:userId" element={isLoggedIn ? <ThreeDGraphing isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
         {/*<Route path="/visualCalculators" element={isLoggedIn ? <VisualCalculators /> : <Navigate to="/login" />} />*/}
@@ -511,8 +540,8 @@ const Home = ({ userId, isDarkMode }) => {
     <div className={`home-wrapper home-page ${isEntering ? "slide-in-from-left" : ""} ${isTransitioning ? "slide-out-left" : ""}`}>
       <div className="box-grid">
         <Link to="/calculus" className="image-box">
-          <img  src={isDarkMode ? "/CalculusBackground_ManimCE_v0.19.0.png" : "/CalculusBackground_ManimCE_v0.19.0_white.png"}
-           alt="Calculus" className="full-image" />
+          <img src={isDarkMode ? "/CalculusBackground_ManimCE_v0.19.0.png" : "/CalculusBackground_ManimCE_v0.19.0_white.png"}
+            alt="Calculus" className="full-image" />
         </Link>
         <Link to="/linearalgebra" className="image-box">
           <img src={isDarkMode ? "/LinearAlgebraBackground_ManimCE_v0.19.0.png" : "LinearAlgebraBackground_ManimCE_v0.19.0_white.png"} alt="Linear Algebra" className="full-image" />
@@ -521,11 +550,11 @@ const Home = ({ userId, isDarkMode }) => {
           <img src={isDarkMode ? "/ProbabilityBackground_ManimCE_v0.19.0.png" : "ProbabilityBackground_ManimCE_v0.19.0_white.png"} alt="Probability" className="full-image" />
         </Link>
         <Link to="/statistics" className="image-box">
-          <img src={isDarkMode ? "/StatisticsBackground_ManimCE_v0.19.0.png" : "StatisticsBackground_ManimCE_v0.19.0_white.png"}  alt="Statistics" className="full-image" />
+          <img src={isDarkMode ? "/StatisticsBackground_ManimCE_v0.19.0.png" : "StatisticsBackground_ManimCE_v0.19.0_white.png"} alt="Statistics" className="full-image" />
         </Link>
         <Link className="image-box" onClick={() => handleNavigateWithAnimation(`/toolsHub/${userId}`)}>
-          <img src={isDarkMode ? "/ToolsAndVisualCalculators_ManimCE_v0.19.0.png" : "ToolsAndVisualCalculators_ManimCE_v0.19.0_white.png" } alt="Other Tools" className="full-image" />
-         
+          <img src={isDarkMode ? "/ToolsAndVisualCalculators_ManimCE_v0.19.0.png" : "ToolsAndVisualCalculators_ManimCE_v0.19.0_white.png"} alt="Other Tools" className="full-image" />
+
         </Link>
       </div>
     </div>

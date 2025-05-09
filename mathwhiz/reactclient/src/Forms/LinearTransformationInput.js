@@ -30,10 +30,10 @@ export function LinearTransformationInput({ selectedType, matrixA, setMatrixA, m
             <div className="matrix-container">
                 <div>
                     <input type="number" value={matrixA} onChange={(e) => setMatrixA(e.target.value)} className="matrix-input" />
-                    <input type="number" value={matrixB} onChange={(e) => setMatrixB(e.target.value)} className="matrix-input" />
+                    <input type="number" value={matrixC} onChange={(e) => setMatrixC(e.target.value)} className="matrix-input" />
                 </div>
                 <div>
-                    <input type="number" value={matrixC} onChange={(e) => setMatrixC(e.target.value)} className="matrix-input" />
+                    <input type="number" value={matrixB} onChange={(e) => setMatrixB(e.target.value)} className="matrix-input" />
                     <input type="number" value={matrixD} onChange={(e) => setMatrixD(e.target.value)} className="matrix-input" />
                 </div>
             </div>
