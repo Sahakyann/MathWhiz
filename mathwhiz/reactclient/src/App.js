@@ -32,7 +32,13 @@ import Eigenvectors from './LessonComponents/LinearLessons/Eigenvectors.js';
 
 /* Probability Imports */
 import Probability from './Probability';
-import IntroToProbability from './LessonComponents/ProbabilityLessons/IntroToProbability.js'
+import IntroToProbability from './LessonComponents/ProbabilityLessons/IntroToProbability.js';
+import BayesFormula from './LessonComponents/ProbabilityLessons/BayesFormula.js';
+import CentralLimitTheorem from './LessonComponents/ProbabilityLessons/CentralLimitTheorem.js';
+import CovarianceCorrelation from './LessonComponents/ProbabilityLessons/CovarianceCorrelation.js';
+import LawOfLargeNumbers from './LessonComponents/ProbabilityLessons/LawOfLargeNumbers.js';
+import ProbabilityDistributions from './LessonComponents/ProbabilityLessons/ProbabilityDistributions.js';
+import RandomVariables from "./LessonComponents/ProbabilityLessons/RandomVariables.js";
 
 /* Statistics Imports */
 import Statistics from './Statistics';
@@ -494,6 +500,12 @@ export default function App() {
         {/* Probability Routes */}
         <Route path="/probability" element={isLoggedIn ? <Probability /> : <Navigate to="/login" />} />
         <Route path="/probability/introProb" element={isLoggedIn ? <IntroToProbability /> : <Navigate to="/login" />} />
+        <Route path="/probability/bayesFormula" element={isLoggedIn ? <BayesFormula /> : <Navigate to="/login" />} />
+        <Route path="/probability/clt" element={isLoggedIn ? <CentralLimitTheorem /> : <Navigate to="/login" />} />
+        <Route path="/probability/covarianceCorrelation" element={isLoggedIn ? <CovarianceCorrelation /> : <Navigate to="/login" />} />
+        <Route path="/probability/lln" element={isLoggedIn ? <LawOfLargeNumbers /> : <Navigate to="/login" />} />
+        <Route path="/probability/probDist" element={isLoggedIn ? <ProbabilityDistributions /> : <Navigate to="/login" />} />
+        <Route path="/probability/randomVar" element={isLoggedIn ? <RandomVariables /> : <Navigate to="/login" />} />
 
         {/* Statistics Routes */}
         <Route path="/statistics" element={isLoggedIn ? <Statistics /> : <Navigate to="/login" />} />

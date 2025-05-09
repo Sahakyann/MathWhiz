@@ -98,8 +98,8 @@ app.UseSwaggerUI(swaggerUIOptions =>
     swaggerUIOptions.RoutePrefix = "swagger"; // string.Empty
 });
 app.UseCors("CORSPolicy");
-app.UseStaticFiles();
-app.UseDefaultFiles();
+//app.UseStaticFiles();
+//app.UseDefaultFiles();
 app.UseRouting();
 
 app.UseWebSockets();
@@ -988,6 +988,6 @@ static string? ValidateJwt(HttpContext context, string jwtKey)
     }
 }
 
-app.MapFallbackToFile("index.html");
+//app.MapFallbackToFile("index.html");
 
 app.Run();

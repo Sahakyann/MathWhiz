@@ -19,8 +19,11 @@ const ProbabilityHome = () => {
   const navigate = useNavigate();
 
   return (
+
+    
     <div className="lesson-hub-page">
       <div className="button-container">
+       
         <button className="transparent-button" onClick={() => navigate("/")}>Back to Home</button>
         <button className="transparent-button" onClick={toggleView}>{isDetailView ? "Card View" : "Detail View"}</button>
       </div>
@@ -34,7 +37,7 @@ const ProbabilityHome = () => {
             </div>
           </Link>
 
-          <Link to="/probability/random-variables" className="lesson">
+          <Link to="/probability/randomVar" className="lesson">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Random Variables" />
             <div className="lesson-content">
               <h3>Random Variables</h3>
@@ -42,7 +45,7 @@ const ProbabilityHome = () => {
             </div>
           </Link>
 
-          <Link to="/probability/bayes" className="lesson">
+          <Link to="/probability/bayesFormula" className="lesson">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Bayes Formula" />
             <div className="lesson-content">
               <h3>Bayes' Formula</h3>
@@ -50,7 +53,7 @@ const ProbabilityHome = () => {
             </div>
           </Link>
 
-          <Link to="/probability/distributions" className="lesson">
+          <Link to="/probability/probDist" className="lesson">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Distributions" />
             <div className="lesson-content">
               <h3>Probability Distributions</h3>
@@ -74,7 +77,7 @@ const ProbabilityHome = () => {
             </div>
           </Link>
 
-          <Link to="/probability/covariance-correlation" className="lesson">
+          <Link to="/probability/covarianceCorrelation" className="lesson">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Covariance and Correlation" />
             <div className="lesson-content">
               <h3>Covariance and Correlation</h3>
@@ -82,7 +85,7 @@ const ProbabilityHome = () => {
             </div>
           </Link>
 
-          <Link to="/probability/law-of-large-numbers" className="lesson">
+          <Link to="/probability/lln" className="lesson">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Law of Large Numbers" />
             <div className="lesson-content">
               <h3>Law of Large Numbers</h3>
@@ -100,22 +103,22 @@ const ProbabilityHome = () => {
         </div>
       ) : (
         <div className="section-grid">
-          <Link to="/probability/intro" className="grid-box">
+          <Link to="/probability/introProb" className="grid-box">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Probability" className="grid-image" />
             <div className="grid-text">Probability Basics</div>
           </Link>
 
-          <Link to="/probability/random-variables" className="grid-box">
+          <Link to="/probability/randomVar" className="grid-box">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Random Variables" className="grid-image" />
             <div className="grid-text">Random Variables</div>
           </Link>
 
-          <Link to="/probability/bayes" className="grid-box">
+          <Link to="/probability/bayesFormula" className="grid-box">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Bayes Formula" className="grid-image" />
             <div className="grid-text">Bayes' Theorem</div>
           </Link>
 
-          <Link to="/probability/distributions" className="grid-box">
+          <Link to="/probability/probDist" className="grid-box">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Distributions" className="grid-image" />
             <div className="grid-text">Distributions</div>
           </Link>
@@ -130,12 +133,12 @@ const ProbabilityHome = () => {
             <div className="grid-text">Expectation & Variance</div>
           </Link>
 
-          <Link to="/probability/covariance-correlation" className="grid-box">
+          <Link to="/probability/covarianceCorrelation" className="grid-box">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Covariance and Correlation" className="grid-image" />
             <div className="grid-text">Covariance & Correlation</div>
           </Link>
 
-          <Link to="/probability/law-of-large-numbers" className="grid-box">
+          <Link to="/probability/lln" className="grid-box">
             <img src="/ProbabilityThumbnail_ManimCE_v0.19.0.png" alt="Law of Large Numbers" className="grid-image" />
             <div className="grid-text">Law of Large Numbers</div>
           </Link>

@@ -236,5 +236,10 @@
   "x^2,-2,2,-2,2,1,1,0.05,-1,1,x^2": "1ccad308591f9dbc107a1e5593c86d",
   "Matrix:\n2, 3\n3, 2\nVectors:\n2, 3": "95ab6adcd46de551fd4ccf034d8c29",
   "Matrix:\n2, 3\n4, 2\nVectors:\n2, 3": "57ae565586888b713520c5a33df7de",
-  "sin(x^2) * cos(x),-2,2,-2,2,1,1,0.05,-1,1,\\sin\\left(x^2\\right)\\cdot\\cos\\left(x\\right)": "3a1362730dc6a4b923cd8fd10df964"
+  "sin(x^2) * cos(x),-2,2,-2,2,1,1,0.05,-1,1,\\sin\\left(x^2\\right)\\cdot\\cos\\left(x\\right)": "3a1362730dc6a4b923cd8fd10df964",
+  "Matrix:\n1, 3\n2, 4\nVectors:\n2, 3": "ef5b2eefa486dd78099817da494a4d",
+  "cos(x^2) * sin(cos(x)),-2,2,-2,2,\\cos\\left(x^2\\right)\\cdot\\sin\\left(\\cos\\left(x\\right)\\right),0,5": "36944c3942186821f0e440a59b623b",
+  "cos(x^2) * sin(cos(x)),-2,2,-2,2,\\cos\\left(x^2\\right)\\cdot\\sin\\left(\\cos\\left(x\\right)\\right),0,7": "36c85f780e3939bab005bdf7b1efb1",
+  "-x^2+3,-2,2,-2,2,1,1,0.05,-1,1,-x^2+3": "f99fe4b4498000b11c36a80984f6aa",
+  "Matrix:\n0, 2\n-1, 0\nVectors:\n2, 3": "57a9fd1e335e502b8ffd48ed3204a5"
 }
