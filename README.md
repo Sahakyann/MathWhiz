@@ -148,6 +148,7 @@ Note: These changes are required because the official ManimCE does not currently
 - Newton's Method
 
 # Manim animations for various math topics
+```bash
 manim_animations/
 ├── Calculus/                 # Calculus Visualizations
 ├── Extras/                   # Misc assets and other Manim outputs
@@ -156,8 +157,9 @@ manim_animations/
 ├── Probability/              # Probability visualizations
 ├── RequestJsonTempFiles/     # JSON inputs from frontend
 └── Statistics/               # Statistics Visualizations
-
+```
 # Main application folder
+```bash
 mathwhiz/
 ├── aspnetserver/             # ASP.NET Core backend API
 │   ├── Data/Structures/      # C# data models and DTOs
@@ -176,3 +178,4 @@ mathwhiz/
         │   └── StatisticsLessons/
         ├── Styles-CSS/       # Custom styles or Tailwind overrides
         └── SubmitHandlers/   # Logic for form submissions and API calls
+```
